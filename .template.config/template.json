@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Kennith Mann",
+  "classifications": [ "blazorwasm", "Web", "Blazor" ],
+  "name": "Etherpunk's Blazor Wasm",
+  "identity": "Etherpunk.BlazorWasm.CSharp",
+  "identity": "Etherpunk.BlazorWasm",
+  "shortName": "etherpunkwasm",
+  "defaultName": "EtherpunkWasm",
+  "sourceName": "EtherpunkBlazorWasm",
+  "preferNameDirectory": true,
+
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "guids": [
+    "4185ac7a-3ee6-4060-a3e8-95562d509c52"
+  ],
+  "symbols": {
+    "appDbContextName": {
+      "type": "parameter",
+      "defaultValue": "DbContext",
+      "replaces": "EpunkDbContext"
+    },
+    "databaseFileName": {
+      "type": "parameter",
+      "defaultValue": "database.sqlite3",
+      "replaces": "EpunkSqliteDbName.sqlite3"
+    },
+    "copyrightName": {
+      "type": "parameter",
+      "defaultValue": "Etherpunk",
+      "replaces": "EpunkCopyright"
+    },
+    "etherpunkAudience": {
+      "type": "parameter",
+      "defaultValue": "EtherpunkAud",
+      "replaces": "EpunkAud"
+    },
+    "etherpunkIssuer": {
+      "type": "parameter",
+      "defaultValue": "EtherpunkIss",
+      "replaces": "EpunkIss"
+    }
+  }
+}

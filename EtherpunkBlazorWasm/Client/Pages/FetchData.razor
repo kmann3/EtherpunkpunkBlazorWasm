@@ -1,0 +1,254 @@
+﻿@page "/fetchdata"
+@using EtherpunkBlazorWasm.Shared
+@inject HttpClient Http
+@inject IJSRuntime jsr
+
+<PageTitle>Weather forecast</PageTitle>
+
+<h1>Weather forecast</h1>
+
+<p>This component demonstrates fetching data from the server.</p>
+
+(Anonymous Access)
+@if (forecastWeek == null)
+{
+	<p><em>Loading... </em></p>
+	if(!string.IsNullOrEmpty(messageWeek))
+	{
+		<p>Message: @messageWeek</p>
+	}
+}
+else
+{
+	if (!string.IsNullOrEmpty(messageWeek))
+	{
+		<p>Message: @messageWeek</p>
+	}
+	<table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Temp. (C)</th>
+                <th>Temp. (F)</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+			@foreach (var forecast in forecastWeek)
+            {
+                <tr>
+                    <td>@forecast.Date.ToShortDateString()</td>
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Summary</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<hr />
+(Logged in access)
+@if(string.IsNullOrEmpty(userdata))
+{
+	<p><a href="/login?redirectUrl=fetchdata">LOGIN TO ACCESS THIS DATA</a></p>
+	if (!string.IsNullOrEmpty(messageToday))
+	{
+		<p>Message: @messageToday</p>
+	}
+} 
+else
+{
+	if (forecastToday == null)
+	{
+		<p><em>Loading...</em></p>
+		<p><a href="javascript:;" @onclick="GetTodaysForecast">Today's Forecast</a></p>
+		if (!string.IsNullOrEmpty(messageToday))
+		{
+			<p>Message: @messageToday</p>
+		}
+	}
+	else
+	{
+		if (!string.IsNullOrEmpty(messageToday))
+		{
+			<p>Message: @messageToday</p>
+		}
+		<p><a href="javascript:;" @onclick="GetTodaysForecast">Today's Forecast</a></p>
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Date</th>
+							<th>Temp. (C)</th>
+							<th>Temp. (F)</th>
+							<th>Summary</th>
+							<th>User</th>
+						</tr>
+					</thead>
+					<tbody>
+				@foreach (var forecast in forecastToday)
+				{
+								<tr>
+									<td>@forecast.Date.ToShortDateString()</td>
+									<td>@forecast.TemperatureC</td>
+									<td>@forecast.TemperatureF</td>
+									<td>@forecast.Summary</td>
+								</tr>
+				}
+					</tbody>
+				</table>
+	}
+}
+
+<hr />
+(Admin Access)
+@if(string.IsNullOrEmpty(userdata))
+{
+	<p><a href="/login?redirectUrl=fetchdata">LOGIN TO ACCESS THIS DATA</a></p>
+	if (!string.IsNullOrEmpty(messageTomorrow))
+	{
+		<p>Message: @messageTomorrow</p>
+	}
+}
+else
+{
+	if (forecastTomorrow == null)
+	{
+		<p><em>Loading...</em></p>
+		if (!string.IsNullOrEmpty(messageTomorrow))
+		{
+			<p>Message: @messageTomorrow</p>
+		}
+		<p><a href="javascript:;" @onclick="GetTomorrowsForecast">Tomorrows's Forecast</a></p>
+	}
+	else
+	{
+		if (!string.IsNullOrEmpty(messageTomorrow))
+		{
+			<p>Message: @messageTomorrow</p>
+		}
+		<p><a href="javascript:;" @onclick="GetTomorrowsForecast">Tomorrows's Forecast</a></p>
+		<table class="table">
+			<thead>
+				<tr>
+					<th>Date</th>
+					<th>Temp. (C)</th>
+					<th>Temp. (F)</th>
+					<th>Summary</th>
+					<th>User</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var forecast in forecastTomorrow)
+				{
+					<tr>
+						<td>@forecast.Date.ToShortDateString()</td>
+						<td>@forecast.TemperatureC</td>
+						<td>@forecast.TemperatureF</td>
+						<td>@forecast.Summary</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	}
+}
+
+@code {
+
+	private List<WeatherForecast> forecastWeek;
+	private List<WeatherForecast> forecastToday;
+	private List<WeatherForecast> forecastTomorrow;
+	string userdata;
+	string messageWeek = "";
+	string messageToday = "";
+	string messageTomorrow = "";
+
+	private async Task<string> GetJWT()
+	{
+		userdata = await jsr.InvokeAsync<string>("localStorage.getItem", "user").ConfigureAwait(false);
+		if (!string.IsNullOrWhiteSpace(userdata))
+		{
+			var dataArray = userdata.Split(';', 2);
+			if (dataArray.Length == 2)
+				return dataArray[1];
+		}
+
+		return null;
+	}
+
+	private async Task GetTodaysForecast()
+	{
+		string status = string.Empty;
+		string error = string.Empty;
+		List<WeatherForecast> weather = new List<WeatherForecast>();
+		//var result = await GetForecastApi($"/api/weatherforecast/{DateTime.Now.ToString("yyyy-MM-dd")}");
+		var result = await GetForecastApi($"/api/weatherforecast/today");
+		forecastToday = result.weather;
+		messageToday = $"{result.status} / {result.error}";
+	}
+	private async Task GetTomorrowsForecast()
+	{
+		string status = string.Empty;
+		string error = string.Empty;
+		List<WeatherForecast> weather = new List<WeatherForecast>();
+		var result = await GetForecastApi($"/api/weatherforecast/tomorrow");
+		forecastTomorrow = result.weather;
+		messageTomorrow = $"{result.status} / {result.error}";
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+
+		string status = string.Empty;
+		string error = string.Empty;
+		List<WeatherForecast> weather = new List<WeatherForecast>();
+		var result = await GetForecastApi($"/api/weatherforecast");
+		forecastWeek = result.weather;
+		messageWeek = $"{result.status} / {result.error}";
+
+	}
+
+	private async Task<(string status, string error, List<WeatherForecast> weather)> GetForecastApi(string requestUri)
+	{
+		string status = string.Empty;
+		string error = string.Empty;
+		List<WeatherForecast> weather = new List<WeatherForecast>();
+		try
+		{
+			var requestMsg = new HttpRequestMessage(HttpMethod.Get, requestUri);
+			requestMsg.Headers.Add("Authorization", "Bearer " + await GetJWT());
+			var response = await Http.SendAsync(requestMsg);
+			status = response.StatusCode.ToString();
+			switch (response.StatusCode)
+			{
+				case System.Net.HttpStatusCode.Unauthorized:
+					await jsr.InvokeVoidAsync("localStorage.removeItem", "user").ConfigureAwait(false);
+					userdata = null;
+					error = "Unauthroized, token expired?";
+					break;
+				case System.Net.HttpStatusCode.Forbidden:
+					error = "Not allowed to see this!";
+					break;
+				case System.Net.HttpStatusCode.NoContent:
+					break;
+				case System.Net.HttpStatusCode.InternalServerError:
+					error = $"Internal Server Error: {response.Content}";
+					break;
+				default:
+					break;
+			}
+			if (response.IsSuccessStatusCode)
+			{
+				status = await response.Content.ReadAsStringAsync();
+				weather = await response.Content.ReadFromJsonAsync<List<WeatherForecast>>();
+			}
+		}
+		catch (Exception ex)
+		{
+			error = ex.ToString();
+		}
+
+		return (status, error, weather);
+	}
+}

@@ -12,7 +12,7 @@ public class UserDatabase : IUserDatabase
     public UserDatabase(IWebHostEnvironment env) => this.env = env;
     public static string CreateHash(string password)
     {
-        var salt = "997eff51db1544c7a3c2ddeb2053f052";
+        var salt = "a95367d8b91444aebb3f344da0d154b3";
         var md5 = new HMACMD5(Encoding.UTF8.GetBytes(salt + password));
         byte[] data = md5.ComputeHash(Encoding.UTF8.GetBytes(password));
         return System.Convert.ToBase64String(data);

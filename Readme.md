@@ -7,10 +7,14 @@ Drop to a command prompt. Go to the root directory of solution. `dotnet new inst
 How to uninstall:
 Drop to a command prompt. Go to the root directory of solution. `dotnet new uninstall .`
 
+To be implemented:
 
 - Add optional https://github.com/natemcmaster/LettuceEncrypt  
 - Optional variable / pages for Sqlite versus SQL Server versus Postgres
 - Add Server-side logout / forced logout
+- Confirm email / Resend / Update
+- TOTP and/or Email 2FA (implemented via Interface so the authors can implement it on their own)
+- User maintained sessions / ability to revoke sessions (this would be nice if you forgot to logout at a public machine like a library)
 
 Notes for myself:
     ValidAudience = "EpunkAud";

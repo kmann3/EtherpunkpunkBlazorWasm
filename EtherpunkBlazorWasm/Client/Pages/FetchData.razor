@@ -51,11 +51,7 @@ else
 (Logged in access)
 @if(string.IsNullOrEmpty(userdata))
 {
-	<p><a href="/login?redirectUrl=fetchdata">LOGIN TO ACCESS THIS DATA</a></p>
-	if (!string.IsNullOrEmpty(messageToday))
-	{
-		<p>Message: @messageToday</p>
-	}
+	<p>Unauthorized</p>
 } 
 else
 {
@@ -104,11 +100,7 @@ else
 (Admin Access)
 @if(string.IsNullOrEmpty(userdata))
 {
-	<p><a href="/login?redirectUrl=fetchdata">LOGIN TO ACCESS THIS DATA</a></p>
-	if (!string.IsNullOrEmpty(messageTomorrow))
-	{
-		<p>Message: @messageTomorrow</p>
-	}
+	<p>Unauthorized</p>
 }
 else
 {
@@ -166,14 +158,14 @@ else
 	private async Task<string> GetJWT()
 	{
 		userdata = await jsr.InvokeAsync<string>("localStorage.getItem", "user").ConfigureAwait(false);
-		if (!string.IsNullOrWhiteSpace(userdata))
+		if (!string.IsNullOrEmpty(userdata))
 		{
 			var dataArray = userdata.Split(';', 2);
 			if (dataArray.Length == 2)
 				return dataArray[1];
 		}
 
-		return null;
+		throw new Exception("Malformed UserData");
 	}
 
 	private async Task GetTodaysForecast()
@@ -181,7 +173,6 @@ else
 		string status = string.Empty;
 		string error = string.Empty;
 		List<WeatherForecast> weather = new List<WeatherForecast>();
-		//var result = await GetForecastApi($"/api/weatherforecast/{DateTime.Now.ToString("yyyy-MM-dd")}");
 		var result = await GetForecastApi($"/api/weatherforecast/today");
 		forecastToday = result.weather;
 		messageToday = $"{result.status} / {result.error}";
@@ -206,6 +197,15 @@ else
 		var result = await GetForecastApi($"/api/weatherforecast");
 		forecastWeek = result.weather;
 		messageWeek = $"{result.status} / {result.error}";
+
+		if(!string.IsNullOrEmpty(userdata))
+		{
+			GetTodaysForecast();
+			GetTomorrowsForecast();
+
+			await GetTodaysForecast();
+			await GetTomorrowsForecast();
+		}
 
 	}
 

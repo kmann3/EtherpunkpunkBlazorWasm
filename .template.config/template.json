@@ -15,7 +15,8 @@
     "type": "project"
   },
   "guids": [
-    "4185ac7a-3ee6-4060-a3e8-95562d509c52"
+    "4185ac7a-3ee6-4060-a3e8-95562d509c52",
+    "997eff51db1544c7a3c2ddeb2053f052"
   ],
   "symbols": {
     "appDbContextName": {

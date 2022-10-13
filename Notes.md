@@ -1,4 +1,9 @@
-Notes for myself:
+Useful links:
+
+- Template Samples: https://github.com/dotnet/dotnet-template-samples
+
+
+Variables used:
     ValidAudience = "EpunkAud";
     ValidIssuer = "EpunkIss";
     SecretKey = "EpunkSecretKey";

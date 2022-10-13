@@ -7,6 +7,12 @@ Drop to a command prompt. Go to the root directory of solution. `dotnet new inst
 How to uninstall:
 Drop to a command prompt. Go to the root directory of solution. `dotnet new uninstall .`
 
+
+Licenses:
+- Bcrypt
+	URL: https://github.com/BcryptNet/bcrypt.net
+	License: MIT
+
 To be implemented:
 
 - Add optional https://github.com/natemcmaster/LettuceEncrypt  

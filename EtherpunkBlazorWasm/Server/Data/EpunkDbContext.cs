@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using EtherpunkBlazorWasm.Server.Data.Entities;
 using EtherpunkBlazorWasm.Server.Auth;
 
@@ -36,12 +36,12 @@ public class EpunkDbContext : DbContext
         //builder.Entity<AppUserRole>().HasData(adminUserRoleLink);
     }
 
-	protected override void OnConfiguring(DbContextOptionsBuilder options)
-    {
-        options.UseSqlite($"DataSource=EpunkSqliteDbName.sqlite3");
-    }
+protected override void OnConfiguring(DbContextOptionsBuilder options)
+	{
+		options.UseSqlite($"DataSource=EpunkSqliteDbName.sqlite3");
+	}
 
 	public DbSet<AppUserRole> AppUserRoles { get; set; }
 	public DbSet<AppUser> AppUsers { get; set; }
-    public DbSet<AppRole> AppRoles { get; set; }
+	public DbSet<AppRole> AppRoles { get; set; }
 }

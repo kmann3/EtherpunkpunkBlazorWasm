@@ -1,6 +1,7 @@
 ﻿using EtherpunkBlazorWasm.Server.Auth;
 using EtherpunkBlazorWasm.Server.Data.Entities;
 using EtherpunkBlazorWasm.Shared;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -79,5 +80,13 @@ public class AuthController : ControllerBase
 			return new LoginResult { Message = "Login successful.", JwtBearer = CreateJWT(user), Email = login.Email, Success = true };
 
 		return new LoginResult { Message = "User/password not found.", Success = false };
+	}
+
+	[HttpGet]
+	[Authorize(Roles = "Admin")]
+	[Route("api/auth/rolelist")]
+	public async Task<List<RoleModel>> Get()
+	{
+		throw new NotImplementedException();
 	}
 }

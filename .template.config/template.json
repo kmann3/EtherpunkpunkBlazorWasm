@@ -4,7 +4,7 @@
   "classifications": [ "blazorwasm", "Web", "Blazor" ],
   "name": "Etherpunk's Blazor Wasm",
   "identity": "Etherpunk.BlazorWasm.CSharp",
-  "identity": "Etherpunk.BlazorWasm",
+  "groupIdentity": "Etherpunk.BlazorWasm",
   "shortName": "etherpunkwasm",
   "defaultName": "EtherpunkWasm",
   "sourceName": "EtherpunkBlazorWasm",
@@ -15,8 +15,7 @@
     "type": "project"
   },
   "guids": [
-    "4185ac7a-3ee6-4060-a3e8-95562d509c52",
-    "997eff51db1544c7a3c2ddeb2053f052"
+    "4185ac7a-3ee6-4060-a3e8-95562d509c52"
   ],
   "symbols": {
     "appDbContextName": {
@@ -24,25 +23,35 @@
       "defaultValue": "DbContext",
       "replaces": "EpunkDbContext"
     },
-    "databaseFileName": {
-      "type": "parameter",
-      "defaultValue": "database.sqlite3",
-      "replaces": "EpunkSqliteDbName.sqlite3"
-    },
     "copyrightName": {
       "type": "parameter",
+      "displayName": "Copyright String (e.g. (C) 2022 Etherpunk)",
       "defaultValue": "Etherpunk",
       "replaces": "EpunkCopyright"
     },
+    "databaseFileName": {
+      "type": "parameter",
+      "displayName": "Name of the database file for SQLite",
+      "defaultValue": "database.sqlite3",
+      "replaces": "EpunkSqliteDbName.sqlite3"
+    },
     "etherpunkAudience": {
       "type": "parameter",
+      "displayName": "Audience (used for JWT token)",
       "defaultValue": "EtherpunkAud",
       "replaces": "EpunkAud"
     },
     "etherpunkIssuer": {
       "type": "parameter",
+      "displayName": "Issuer (used for JWT token)",
       "defaultValue": "EtherpunkIss",
       "replaces": "EpunkIss"
+    },
+    "passwordSalt": {
+      "type": "parameter",
+      "displayName": "Salt to be used. MUST be 22 characters. !! CHANGE THIS FROM DEFAULT !!",
+      "defaultValue": "k87L/MF28Q673VKh8/cPi.",
+      "replaces": "k87L/MF28Q673VKh8/cPi."
     }
   }
 }

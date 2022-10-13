@@ -66,7 +66,7 @@ app.UseAuthorization();
 
 #if DEBUG
 // Firefox will throw fits because of localhost stuffs.
-// DO NOT USE THIS IN PRODUCTION. THIS DISABLED AN IMPORTANT SECURITY MEASURE
+// DO NOT USE THIS IN PRODUCTION. THIS DISABLES AN IMPORTANT SECURITY MEASURE
 app.UseCors();
 #endif
 

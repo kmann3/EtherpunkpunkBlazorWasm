@@ -18,13 +18,3 @@ To be implemented:
 - User maintained sessions / ability to revoke sessions (this would be nice if you forgot to logout at a public machine like a library)
 - Is there anything that can be don about SCS00005 - Weak Number Generator? That's the only security issue the scanner has found thus far. Need to investigate further.
 
-Notes for myself:
-    ValidAudience = "EpunkAud";
-    ValidIssuer = "EpunkIss";
-    SecretKey = "EpunkSecretKey";
-
-    EpunkCopyright
-    Database / EpunkSqliteDbName
-    appDbContextName / EpunkDbContext
-
-    dotnet dev-certs https --trust

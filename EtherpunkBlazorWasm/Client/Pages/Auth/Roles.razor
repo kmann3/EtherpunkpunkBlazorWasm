@@ -1,0 +1,71 @@
+﻿@page "/admin/roles"
+@inject HttpClient Http
+@inject IJSRuntime jsr
+@inject NavigationManager nav
+@using EtherpunkBlazorWasm.Shared
+
+<h3>Role Administration</h3>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">Users</th>
+       <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    @foreach(var role in RoleList) {
+        <tr>
+          <td>@role.Name</td>
+            <td>
+                @foreach(var user in role.UserList)
+                {
+                    <a href="/admin/user/@user.Id">@user.Name</a>
+                    <br />
+                }
+            </td>
+            <td>(Add User; Modal Dialog) (Rename Role) (Expire all tokens with this role) (Delete Role)</td>
+        </tr>
+    }
+  </tbody>
+</table>
+
+@RoleList.Count Roles
+
+
+
+@code {
+    List<RoleModel> RoleList { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        // Validate user auth to make sure they can be here
+        // Get list roles and users
+
+        // Fake Data for messing with layout
+        RoleList = new List<RoleModel>()
+        {
+            new RoleModel()
+            {
+                Name = "Admin",
+                Id = Guid.NewGuid(),
+                UserList = new List<RoleModel.User>()
+                {
+                    new RoleModel.User()
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = "admin@etherpunk.com"
+                    },
+                    new RoleModel.User()
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = "Foo@bar.com"
+                    }
+                }
+            }
+        };
+
+		return base.OnInitializedAsync();
+	}
+}

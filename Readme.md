@@ -15,12 +15,12 @@ Licenses:
 
 To be implemented:
 
+- Optional User Management + Ability to CRUD roles.
+- 2FA: TOTP
+- 2FA: Email
+- Confirm email / Resend / Update
 - Add optional https://github.com/natemcmaster/LettuceEncrypt  
 - Optional variable / pages for Sqlite versus SQL Server versus Postgres
 - Add Server-side logout / forced logout
-- Confirm email / Resend / Update
-- Optional User Management + Ability to CRUD roles.
-- TOTP and/or Email 2FA (implemented via Interface so the authors can implement it on their own)
 - User maintained sessions / ability to revoke sessions (this would be nice if you forgot to logout at a public machine like a library)
 - Is there anything that can be don about SCS00005 - Weak Number Generator? That's the only security issue the scanner has found thus far. Need to investigate further.
-

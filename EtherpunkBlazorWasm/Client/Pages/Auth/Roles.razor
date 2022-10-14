@@ -5,38 +5,45 @@
 @using EtherpunkBlazorWasm.Shared
 
 <h3>Role Administration</h3>
+@if (RoleList == null)
+{
+	<p><em>Loading... </em></p>
 
-<table class="table table-striped">
-  <thead>
-    <tr>
-      <th scope="col">Name</th>
-      <th scope="col">Users</th>
-       <th scope="col">Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    @foreach(var role in RoleList) {
+}
+else
+{
+
+    <table class="table table-striped">
+      <thead>
         <tr>
-          <td>@role.Name</td>
-            <td>
-                @foreach(var user in role.UserList)
-                {
-                    <a href="/admin/user/@user.Id">@user.Name</a>
-                    <br />
-                }
-            </td>
-            <td>(Add User; Modal Dialog) (Rename Role) (Expire all tokens with this role) (Delete Role)</td>
+          <th scope="col">Name</th>
+          <th scope="col">Users</th>
+           <th scope="col">Actions</th>
         </tr>
-    }
-  </tbody>
-</table>
+      </thead>
+      <tbody>
+        @foreach(var role in RoleList) {
+            <tr>
+              <td>@role.Name</td>
+                <td>
+                    @foreach(var user in role.UserList)
+                    {
+                        <a href="/admin/user/@user.Id">@user.Name</a>
+                        <br />
+                    }
+                </td>
+                <td>(Add User; Modal Dialog) (Rename Role) (Expire all tokens with this role) (Delete Role)</td>
+            </tr>
+        }
+      </tbody>
+    </table>
 
-@RoleList.Count Roles
-
-
+    <p>Role Count: @RoleList.Count</p>
+}
 
 @code {
     List<RoleModel> RoleList { get; set; }
+    string? userdata;
 
     protected override Task OnInitializedAsync()
     {
@@ -66,6 +73,61 @@
             }
         };
 
-		return base.OnInitializedAsync();
-	}
+        return base.OnInitializedAsync();
+    }
+
+    private async Task<string> GetJWT()
+    {
+        userdata = await jsr.InvokeAsync<string>("localStorage.getItem", "user").ConfigureAwait(false);
+        if (!string.IsNullOrEmpty(userdata))
+        {
+            var dataArray = userdata.Split(';', 2);
+            if (dataArray.Length == 2)
+                return dataArray[1];
+        }
+
+        throw new Exception("Malformed UserData");
+    }
+
+    private async Task<(bool accessGranted, string error, List<RoleModel>? roleList)> GetRolesApi()
+    {
+        bool accessGranted = false;
+        string error = string.Empty;
+        List<RoleModel>? roleList = null;
+        try
+        {
+            var requestMsg = new HttpRequestMessage(HttpMethod.Get, $"/api/auth/rolelist");
+            requestMsg.Headers.Add("Authorization", "Bearer " + await GetJWT());
+            var response = await Http.SendAsync(requestMsg);
+            switch (response.StatusCode)
+            {
+                case System.Net.HttpStatusCode.Unauthorized:
+                    await jsr.InvokeVoidAsync("localStorage.removeItem", "user").ConfigureAwait(false);
+                    userdata = null;
+                    error = "Unauthroized, token expired?";
+                    break;
+                case System.Net.HttpStatusCode.Forbidden:
+                    error = "Not allowed to see this!";
+                    break;
+                case System.Net.HttpStatusCode.NoContent:
+                    break;
+                case System.Net.HttpStatusCode.InternalServerError:
+                    error = $"Internal Server Error: {response.Content}";
+                    break;
+                default:
+                    break;
+            }
+            if (response.IsSuccessStatusCode)
+            {
+                accessGranted = true;
+                roleList = await response.Content.ReadFromJsonAsync<List<RoleModel>>();
+            }
+        }
+        catch (Exception ex)
+        {
+            error = ex.ToString();
+        }
+
+        return (accessGranted, error, roleList);
+    }
 }

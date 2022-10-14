@@ -53,6 +53,7 @@
 				{
 					// Incorrect username/password most likely
 					message = result?.Message ?? string.Empty;
+					isDisabled = false;
 					return;
 				}
 
@@ -68,6 +69,7 @@
 			{
 				// The main way to land here is if something is misconfigured or a typo.
 				message = $"ERROR LOGGING IN - {msg.StatusCode}";
+				isDisabled = false;
 			}
 		}
 	}

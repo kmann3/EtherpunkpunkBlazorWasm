@@ -10,19 +10,19 @@
 <p>This component demonstrates fetching data from the server.</p>
 
 (Anonymous Access)
-@if (forecastWeek == null)
+@if (forecastThisWeek == null)
 {
 	<p><em>Loading... </em></p>
-	if(!string.IsNullOrEmpty(messageWeek))
+	if (!string.IsNullOrEmpty(messageThisWeek))
 	{
-		<p>Message: @messageWeek</p>
+		<p>Message: @messageThisWeek</p>
 	}
 }
 else
 {
-	if (!string.IsNullOrEmpty(messageWeek))
+	if (!string.IsNullOrEmpty(messageThisWeek))
 	{
-		<p>Message: @messageWeek</p>
+		<p>Message: @messageThisWeek</p>
 	}
 	<table class="table">
         <thead>
@@ -34,7 +34,7 @@ else
             </tr>
         </thead>
         <tbody>
-			@foreach (var forecast in forecastWeek)
+			@foreach (var forecast in forecastThisWeek)
             {
                 <tr>
                     <td>@forecast.Date.ToShortDateString()</td>
@@ -55,22 +55,22 @@ else
 } 
 else
 {
-	if (forecastToday == null)
+	if (forecastNextWeek == null)
 	{
 		<p><em>Loading...</em></p>
-		<p><a href="javascript:;" @onclick="GetTodaysForecast">Today's Forecast</a></p>
-		if (!string.IsNullOrEmpty(messageToday))
+		<p><a href="javascript:;" @onclick="GetNextWeeksForecast">Get This Week's Forecast</a></p>
+		if (!string.IsNullOrEmpty(messageNextWeek))
 		{
-			<p>Message: @messageToday</p>
+			<p>Message: @messageNextWeek</p>
 		}
 	}
 	else
 	{
-		if (!string.IsNullOrEmpty(messageToday))
+		if (!string.IsNullOrEmpty(messageNextWeek))
 		{
-			<p>Message: @messageToday</p>
+			<p>Message: @messageNextWeek</p>
 		}
-		<p><a href="javascript:;" @onclick="GetTodaysForecast">Today's Forecast</a></p>
+		<p><a href="javascript:;" @onclick="GetNextWeeksForecast">This Week's Forecast</a></p>
 				<table class="table">
 					<thead>
 						<tr>
@@ -82,7 +82,7 @@ else
 						</tr>
 					</thead>
 					<tbody>
-				@foreach (var forecast in forecastToday)
+				@foreach (var forecast in forecastNextWeek)
 				{
 								<tr>
 									<td>@forecast.Date.ToShortDateString()</td>
@@ -104,22 +104,22 @@ else
 }
 else
 {
-	if (forecastTomorrow == null)
+	if (forecastLastWeek == null)
 	{
 		<p><em>Loading...</em></p>
-		if (!string.IsNullOrEmpty(messageTomorrow))
+		if (!string.IsNullOrEmpty(messageLastWeek))
 		{
-			<p>Message: @messageTomorrow</p>
+			<p>Message: @messageLastWeek</p>
 		}
-		<p><a href="javascript:;" @onclick="GetTomorrowsForecast">Tomorrows's Forecast</a></p>
+		<p><a href="javascript:;" @onclick="GetLastWeeksForecast">Tomorrow's Forecast</a></p>
 	}
 	else
 	{
-		if (!string.IsNullOrEmpty(messageTomorrow))
+		if (!string.IsNullOrEmpty(messageLastWeek))
 		{
-			<p>Message: @messageTomorrow</p>
+			<p>Message: @messageLastWeek</p>
 		}
-		<p><a href="javascript:;" @onclick="GetTomorrowsForecast">Tomorrows's Forecast</a></p>
+		<p><a href="javascript:;" @onclick="GetLastWeeksForecast">Tomorrow's Forecast</a></p>
 		<table class="table">
 			<thead>
 				<tr>
@@ -131,7 +131,7 @@ else
 				</tr>
 			</thead>
 			<tbody>
-				@foreach (var forecast in forecastTomorrow)
+				@foreach (var forecast in forecastLastWeek)
 				{
 					<tr>
 						<td>@forecast.Date.ToShortDateString()</td>
@@ -147,64 +147,78 @@ else
 
 @code {
 
-	private List<WeatherForecast> forecastWeek;
-	private List<WeatherForecast> forecastToday;
-	private List<WeatherForecast> forecastTomorrow;
-	string messageWeek = "";
-	string messageToday = "";
-	string messageTomorrow = "";
+	private List<WeatherForecast>? forecastThisWeek;
+	private List<WeatherForecast>? forecastNextWeek;
+	private List<WeatherForecast>? forecastLastWeek;
+	string messageThisWeek = string.Empty;
+	string messageNextWeek = string.Empty;
+	string messageLastWeek = string.Empty;
 
 	private string userData = string.Empty;
 
-	private async Task GetTodaysForecast()
+	private async Task GetNextWeeksForecast()
 	{
-		var data = await Client.Auth.ApiHandler<WeatherForecast>.GetApiDataAsync($"/api/weatherforecast/today", jsr, Http);
-		if (data.HttpResponse?.IsSuccessStatusCode == true)
+		var response = await GetWeatherForecast("/api/weather/nextweek");
+		if(response.weather != null)
 		{
-			forecastToday = data.Data;
+			forecastNextWeek = response.weather;
 		} else
 		{
-			messageToday = $"{data.HttpResponseCode.ToString()} / {data.ErrorData?.Message} / {data.ErrorData?.Exception}";
+			messageNextWeek = response.message;
 		}
-
 	}
-	private async Task GetTomorrowsForecast()
+	private async Task GetLastWeeksForecast()
 	{
-		var data = await Client.Auth.ApiHandler<WeatherForecast>.GetApiDataAsync($"/api/weatherforecast/tomorrow", jsr, Http);
-		if (data.HttpResponse?.IsSuccessStatusCode == true)
+		var response = await GetWeatherForecast("/api/weather/lastweek");
+		if (response.weather != null)
 		{
-			forecastTomorrow = data.Data;
+			forecastLastWeek = response.weather;
+			messageLastWeek = response.message;
 		}
 		else
 		{
-			messageTomorrow = $"{data.HttpResponseCode.ToString()} / {data.ErrorData?.Message} / {data.ErrorData?.Exception}";
+			messageLastWeek = response.message;
 		}
+	}
 
+	private async Task<(string message, List<WeatherForecast>? weather)> GetWeatherForecast(string uri)
+	{
+		var data = await Client.Auth.ApiHandler<WeatherForecast>.GetApiDataAsync(uri, jsr, Http);
+		if (data.HttpResponse?.IsSuccessStatusCode == true)
+		{
+			return ($"{data.HttpResponseCode.ToString()} / {data.ErrorData?.Message} / {data.ErrorData?.Exception}", data.Data);
+		}
+		else
+		{
+			return ($"{data.HttpResponseCode.ToString()} / {data.ErrorData?.Message} / {data.ErrorData?.Exception}", null);
+		}
 	}
 
 	protected override async Task OnInitializedAsync()
 	{
 		await base.OnInitializedAsync();
 
-		var data = await Client.Auth.ApiHandler<WeatherForecast>.GetApiDataAsync($"/api/weatherforecast", jsr, Http);
-		if (data.HttpResponse?.IsSuccessStatusCode == true)
+		userData = await Client.Auth.Jwt.GetJWT(jsr);
+
+		var response = await GetWeatherForecast("/api/weather/thisweek");
+		if (response.weather != null)
 		{
-			forecastWeek = data.Data;
+			forecastThisWeek = response.weather;
+			messageThisWeek = response.message;
 		}
 		else
 		{
-			messageWeek = $"{data.HttpResponseCode.ToString()} / {data.ErrorData?.Message} / {data.ErrorData?.Exception}";
+			messageThisWeek = response.message;
 		}
 
-		userData = await Client.Auth.Jwt.GetJWT(jsr);
 
 		if (!string.IsNullOrEmpty(userData))
 		{
-			GetTodaysForecast();
-			GetTomorrowsForecast();
+			GetNextWeeksForecast();
+			GetLastWeeksForecast();
 
-			await GetTodaysForecast();
-			await GetTomorrowsForecast();
+			await GetNextWeeksForecast();
+			await GetLastWeeksForecast();
 		}
 
 	}

@@ -29,7 +29,7 @@
 	bool isDisabled = false;
 
 	[Parameter]
-	public string redirectUrl { get; set; }
+	public string? redirectUrl { get; set; }
 
 	protected override Task OnInitializedAsync()
 	{
@@ -43,14 +43,16 @@
 		{
 			if (msg.IsSuccessStatusCode)
 			{
-				LoginResult result = await msg.Content.ReadFromJsonAsync<LoginResult>();
+				LoginResult result = await msg.Content.ReadFromJsonAsync<LoginResult>() ?? new LoginResult() { Success = false };
 				isDisabled = false;
 				if (result.Success)
+				{
 					await jsr.InvokeVoidAsync("localStorage.setItem", "user", $"{result.Email};{result.JwtBearer}").ConfigureAwait(false);
+				}
 				else
 				{
 					// Incorrect username/password most likely
-					message = result?.Message;
+					message = result?.Message ?? string.Empty;
 					return;
 				}
 

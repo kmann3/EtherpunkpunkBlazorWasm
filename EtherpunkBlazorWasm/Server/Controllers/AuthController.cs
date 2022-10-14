@@ -38,9 +38,8 @@ public class AuthController : ControllerBase
 		this.userDb = userDb;
 	}
 
-	[HttpPost]
-	[Route("api/auth/register")]
-	public async Task<LoginResult> Post([FromBody] RegistrationModel reg)
+	[HttpPost, Route("api/auth/register")]
+	public async Task<LoginResult> Register([FromBody] RegistrationModel reg)
 	{
 		if (string.IsNullOrWhiteSpace(reg.Email) || string.IsNullOrWhiteSpace(reg.Password))
 		{
@@ -61,9 +60,8 @@ public class AuthController : ControllerBase
 		return new LoginResult { Message = "User already exists.", Success = false };
 	}
 
-	[HttpPost]
-	[Route("api/auth/login")]
-	public async Task<LoginResult> Post([FromBody] LoginModel login)
+	[HttpPost, Route("api/auth/login")]
+	public async Task<LoginResult> Login([FromBody] LoginModel login)
 	{
 		if (string.IsNullOrWhiteSpace(login.Email) || string.IsNullOrWhiteSpace(login.Password))
 		{
@@ -82,9 +80,7 @@ public class AuthController : ControllerBase
 		return new LoginResult { Message = "User/password not found.", Success = false };
 	}
 
-	[HttpGet]
-	[Authorize(Roles = "Admin")]
-	[Route("api/auth/rolelist")]
+	[HttpGet, [Authorize(Roles = "Admin"), Route("api/auth/rolelist")]
 	public async Task<List<RoleModel>> Get()
 	{
 		throw new NotImplementedException();

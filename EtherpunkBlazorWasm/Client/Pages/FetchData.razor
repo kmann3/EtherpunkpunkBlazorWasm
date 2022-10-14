@@ -49,7 +49,7 @@ else
 
 <hr />
 (Logged in access)
-@if(string.IsNullOrEmpty(userdata))
+@if (string.IsNullOrEmpty(userData))
 {
 	<p>Unauthorized</p>
 } 
@@ -98,7 +98,7 @@ else
 
 <hr />
 (Admin Access)
-@if(string.IsNullOrEmpty(userdata))
+@if (string.IsNullOrEmpty(userData))
 {
 	<p>Unauthorized</p>
 }
@@ -150,55 +150,55 @@ else
 	private List<WeatherForecast> forecastWeek;
 	private List<WeatherForecast> forecastToday;
 	private List<WeatherForecast> forecastTomorrow;
-	string userdata;
 	string messageWeek = "";
 	string messageToday = "";
 	string messageTomorrow = "";
 
-	private async Task<string> GetJWT()
-	{
-		userdata = await jsr.InvokeAsync<string>("localStorage.getItem", "user").ConfigureAwait(false);
-		if (!string.IsNullOrEmpty(userdata))
-		{
-			var dataArray = userdata.Split(';', 2);
-			if (dataArray.Length == 2)
-				return dataArray[1];
-		}
-
-		throw new Exception("Malformed UserData");
-	}
+	private string userData = string.Empty;
 
 	private async Task GetTodaysForecast()
 	{
-		string status = string.Empty;
-		string error = string.Empty;
-		List<WeatherForecast> weather = new List<WeatherForecast>();
-		var result = await GetForecastApi($"/api/weatherforecast/today");
-		forecastToday = result.weather;
-		messageToday = $"{result.status} / {result.error}";
+		var data = await Client.Auth.ApiHandler<WeatherForecast>.GetApiDataAsync($"/api/weatherforecast/today", jsr, Http);
+		if (data.HttpResponse?.IsSuccessStatusCode == true)
+		{
+			forecastToday = data.Data;
+		} else
+		{
+			messageToday = $"{data.HttpResponseCode.ToString()} / {data.ErrorData?.Message} / {data.ErrorData?.Exception}";
+		}
+
 	}
 	private async Task GetTomorrowsForecast()
 	{
-		string status = string.Empty;
-		string error = string.Empty;
-		List<WeatherForecast> weather = new List<WeatherForecast>();
-		var result = await GetForecastApi($"/api/weatherforecast/tomorrow");
-		forecastTomorrow = result.weather;
-		messageTomorrow = $"{result.status} / {result.error}";
+		var data = await Client.Auth.ApiHandler<WeatherForecast>.GetApiDataAsync($"/api/weatherforecast/tomorrow", jsr, Http);
+		if (data.HttpResponse?.IsSuccessStatusCode == true)
+		{
+			forecastTomorrow = data.Data;
+		}
+		else
+		{
+			messageTomorrow = $"{data.HttpResponseCode.ToString()} / {data.ErrorData?.Message} / {data.ErrorData?.Exception}";
+		}
+
 	}
 
 	protected override async Task OnInitializedAsync()
 	{
 		await base.OnInitializedAsync();
 
-		string status = string.Empty;
-		string error = string.Empty;
-		List<WeatherForecast> weather = new List<WeatherForecast>();
-		var result = await GetForecastApi($"/api/weatherforecast");
-		forecastWeek = result.weather;
-		messageWeek = $"{result.status} / {result.error}";
+		var data = await Client.Auth.ApiHandler<WeatherForecast>.GetApiDataAsync($"/api/weatherforecast", jsr, Http);
+		if (data.HttpResponse?.IsSuccessStatusCode == true)
+		{
+			forecastWeek = data.Data;
+		}
+		else
+		{
+			messageWeek = $"{data.HttpResponseCode.ToString()} / {data.ErrorData?.Message} / {data.ErrorData?.Exception}";
+		}
 
-		if(!string.IsNullOrEmpty(userdata))
+		userData = await Client.Auth.Jwt.GetJWT(jsr);
+
+		if (!string.IsNullOrEmpty(userData))
 		{
 			GetTodaysForecast();
 			GetTomorrowsForecast();
@@ -207,48 +207,5 @@ else
 			await GetTomorrowsForecast();
 		}
 
-	}
-
-	private async Task<(string status, string error, List<WeatherForecast> weather)> GetForecastApi(string requestUri)
-	{
-		string status = string.Empty;
-		string error = string.Empty;
-		List<WeatherForecast> weather = new List<WeatherForecast>();
-		try
-		{
-			var requestMsg = new HttpRequestMessage(HttpMethod.Get, requestUri);
-			requestMsg.Headers.Add("Authorization", "Bearer " + await GetJWT());
-			var response = await Http.SendAsync(requestMsg);
-			status = response.StatusCode.ToString();
-			switch (response.StatusCode)
-			{
-				case System.Net.HttpStatusCode.Unauthorized:
-					await jsr.InvokeVoidAsync("localStorage.removeItem", "user").ConfigureAwait(false);
-					userdata = null;
-					error = "Unauthroized, token expired?";
-					break;
-				case System.Net.HttpStatusCode.Forbidden:
-					error = "Not allowed to see this!";
-					break;
-				case System.Net.HttpStatusCode.NoContent:
-					break;
-				case System.Net.HttpStatusCode.InternalServerError:
-					error = $"Internal Server Error: {response.Content}";
-					break;
-				default:
-					break;
-			}
-			if (response.IsSuccessStatusCode)
-			{
-				status = await response.Content.ReadAsStringAsync();
-				weather = await response.Content.ReadFromJsonAsync<List<WeatherForecast>>();
-			}
-		}
-		catch (Exception ex)
-		{
-			error = ex.ToString();
-		}
-
-		return (status, error, weather);
 	}
 }

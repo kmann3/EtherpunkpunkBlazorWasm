@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace EtherpunkBlazorWasm.Server.Data.Migrations
+namespace EtherpunkBlazorWasm.Server.Migrations
 {
     [DbContext(typeof(EpunkDbContext))]
     partial class EpunkDbContextModelSnapshot : ModelSnapshot
@@ -15,22 +15,7 @@ namespace EtherpunkBlazorWasm.Server.Data.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "6.0.9");
-
-            modelBuilder.Entity("AppRoleAppUser", b =>
-                {
-                    b.Property<Guid>("RolesId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("UsersId")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("RolesId", "UsersId");
-
-                    b.HasIndex("UsersId");
-
-                    b.ToTable("AppRoleAppUser");
-                });
+            modelBuilder.HasAnnotation("ProductVersion", "6.0.10");
 
             modelBuilder.Entity("EtherpunkBlazorWasm.Server.Data.Entities.AppRole", b =>
                 {
@@ -45,13 +30,6 @@ namespace EtherpunkBlazorWasm.Server.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("AppRoles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("7f37e0a2-90a5-4415-bf47-c27a6f2837ac"),
-                            Role = "Admin"
-                        });
                 });
 
             modelBuilder.Entity("EtherpunkBlazorWasm.Server.Data.Entities.AppUser", b =>
@@ -74,15 +52,6 @@ namespace EtherpunkBlazorWasm.Server.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("AppUsers");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("427863b6-a80c-426a-8643-52db48bbd85e"),
-                            CreatedOn = new DateTime(2022, 10, 8, 15, 6, 32, 856, DateTimeKind.Utc).AddTicks(5553),
-                            Email = "admin@admin.com",
-                            PasswordHash = "UAJrWMszfBmTFvmv395EJw=="
-                        });
                 });
 
             modelBuilder.Entity("EtherpunkBlazorWasm.Server.Data.Entities.AppUserRole", b =>
@@ -98,40 +67,18 @@ namespace EtherpunkBlazorWasm.Server.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("AppUserRoles");
-
-                    b.HasData(
-                        new
-                        {
-                            RoleId = new Guid("7f37e0a2-90a5-4415-bf47-c27a6f2837ac"),
-                            UserId = new Guid("427863b6-a80c-426a-8643-52db48bbd85e")
-                        });
-                });
-
-            modelBuilder.Entity("AppRoleAppUser", b =>
-                {
-                    b.HasOne("EtherpunkBlazorWasm.Server.Data.Entities.AppRole", null)
-                        .WithMany()
-                        .HasForeignKey("RolesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("EtherpunkBlazorWasm.Server.Data.Entities.AppUser", null)
-                        .WithMany()
-                        .HasForeignKey("UsersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("EtherpunkBlazorWasm.Server.Data.Entities.AppUserRole", b =>
                 {
                     b.HasOne("EtherpunkBlazorWasm.Server.Data.Entities.AppRole", "Role")
-                        .WithMany()
+                        .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("EtherpunkBlazorWasm.Server.Data.Entities.AppUser", "User")
-                        .WithMany()
+                        .WithMany("AppUserRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -139,6 +86,16 @@ namespace EtherpunkBlazorWasm.Server.Data.Migrations
                     b.Navigation("Role");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("EtherpunkBlazorWasm.Server.Data.Entities.AppRole", b =>
+                {
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("EtherpunkBlazorWasm.Server.Data.Entities.AppUser", b =>
+                {
+                    b.Navigation("AppUserRoles");
                 });
 #pragma warning restore 612, 618
         }

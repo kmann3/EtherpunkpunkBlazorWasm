@@ -1,8 +1,10 @@
 ﻿using EtherpunkBlazorWasm.Server.Auth;
+using EtherpunkBlazorWasm.Server.Data;
 using EtherpunkBlazorWasm.Server.Data.Entities;
 using EtherpunkBlazorWasm.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -32,10 +34,12 @@ public class AuthController : ControllerBase
 	}
 
 	private IUserDatabase userDb { get; set; }
+	private EpunkDbContext dbContext { get; set; }
 
-	public AuthController(IUserDatabase userDb)
+	public AuthController(IUserDatabase userDb, EpunkDbContext db)
 	{
 		this.userDb = userDb;
+		this.dbContext = db;
 	}
 
 	[HttpPost, Route("api/auth/register")]
@@ -80,9 +84,11 @@ public class AuthController : ControllerBase
 		return new LoginResult { Message = "User/password not found.", Success = false };
 	}
 
-	[HttpGet, [Authorize(Roles = "Admin"), Route("api/auth/rolelist")]
-	public async Task<List<RoleModel>> Get()
+	[HttpGet, Authorize(Roles = "Admin"), Route("api/auth/rolelist")]
+	public async Task<List<RoleModel>> GetRoleList()
 	{
-		throw new NotImplementedException();
+		var roles = dbContext.AppRoles
+			.Include(u => u.Users)
+		return await roles.ToListAsync();
 	}
 }

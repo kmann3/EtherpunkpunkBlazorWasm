@@ -28,11 +28,17 @@ else
                 <td>
                     @foreach(var user in role.UserList)
                     {
-                        <a href="/admin/user/@user.Id">@user.Name</a>
+                            <a href="/admin/user/@user.Id">@user.Name</a>
+                            <span title="Remove this user from role"><i class="fa-solid fa-user-slash"></i></span>
                         <br />
                     }
                 </td>
-                <td>(Add User; Modal Dialog) (Rename Role) (Expire all tokens with this role) (Delete Role)</td>
+                    <td>
+                        <span title="Add a user"><i class="fa-solid fa-user-plus"></i></span> | 
+                        <span title="Edit role name"><i class="fa-solid fa-pencil"></i></span> | 
+                        <span title="Expire all tokens"><i class="fa-solid fa-user-xmark"></i></span> | 
+                        <span title="Delete role"><i class="fa-solid fa-trash"></i></span>
+                    </td>
             </tr>
         }
       </tbody>

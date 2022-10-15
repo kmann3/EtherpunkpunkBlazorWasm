@@ -87,8 +87,9 @@ public class AuthController : ControllerBase
 	[HttpGet, Authorize(Roles = "Admin"), Route("api/auth/rolelist")]
 	public async Task<List<RoleModel>> GetRoleList()
 	{
-		var roles = dbContext.AppRoles
-			.Include(u => u.Users)
-		return await roles.ToListAsync();
+		//var roles = dbContext.AppRoles
+		//	.Include(u => u.Users)
+		//return await roles.ToListAsync();
+		return null;
 	}
 }

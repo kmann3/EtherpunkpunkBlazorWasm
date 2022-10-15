@@ -24,7 +24,7 @@ else
       <tbody>
         @foreach(var role in RoleList) {
             <tr>
-              <td>@role.Name</td>
+              <td>@role.Name (@role.UserList.Count users)</td>
                 <td>
                     @foreach(var user in role.UserList)
                     {

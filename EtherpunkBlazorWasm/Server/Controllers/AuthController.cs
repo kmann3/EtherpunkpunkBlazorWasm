@@ -84,7 +84,7 @@ public class AuthController : ControllerBase
 		return new LoginResult { Message = "User/password not found.", Success = false };
 	}
 
-	[HttpGet, Authorize(Roles = "Admin"), Route("api/auth/rolelist")]
+	[HttpGet, Authorize(Roles = "Admin"), Route("api/auth/roleList")]
 	public async Task<List<RoleModel>> GetRoleList()
 	{
 		var roles = dbContext.AppRoles
@@ -94,18 +94,19 @@ public class AuthController : ControllerBase
 				Name = x.RoleName,
 				UserList = (List<RoleModel.User>)x.Users.Select(x => new RoleModel.User() { Id = x.UserId, Name = x.User.Email })
 			});
-		return await roles.ToListAsync();
+
+        return await roles.ToListAsync();
 	}
 
-    [HttpPost, Authorize(Roles = "Admin"), Route("api/auth/addusertorole")]
-    public async Task<RoleModel?> AddUserToRole(Guid roleId, Guid userId)
+    [HttpPost, Authorize(Roles = "Admin"), Route("api/auth/addUserToRole")]
+    public async Task<RoleModel?> AddUserToRole([FromBody] UserRole userRole)
 	{
-		dbContext.AppUserRoles.Add(new AppUserRole() { RoleId= roleId, UserId = userId });
+		dbContext.AppUserRoles.Add(new AppUserRole() { RoleId= userRole.RoleId, UserId = userRole.UserId });
 		await dbContext.SaveChangesAsync();
 
 		var newRoleUserList = dbContext.AppRoles
             .Include(x => x.Users)
-			.Where(x => x.Id == roleId)
+			.Where(x => x.Id == userRole.RoleId)
             .Select(x => new RoleModel()
             {
                 Id = x.Id,

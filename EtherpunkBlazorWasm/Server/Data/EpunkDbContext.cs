@@ -54,9 +54,9 @@ public class EpunkDbContext : DbContext
         builder.Entity<AppUserRole>().HasData(adminUserRoleLink);
     }
 
-protected override void OnConfiguring(DbContextOptionsBuilder options)
+protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 	{
-		options.UseSqlite($"DataSource=EpunkSqliteDbName.sqlite3");
+		optionsBuilder.UseSqlite($"DataSource=EpunkSqliteDbName.sqlite3");
 	}
 
 	public DbSet<AppUserRole> AppUserRoles { get; set; }

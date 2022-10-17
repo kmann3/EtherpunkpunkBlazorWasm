@@ -4,12 +4,16 @@
 @inject NavigationManager nav
 @using EtherpunkBlazorWasm.Shared
 @using Microsoft.AspNetCore.Authorization;
-@attribute [Authorize(Roles = "Adminz")];
-
 <h3>Role Administration</h3>
-@if(!string.IsNullOrEmpty(message))
+
+@if(isAccessGranted == false)
 {
-    <p>Message: @message</p>
+    <p>You are not authorized to be here. Ruh roh!</p>
+    if(!string.IsNullOrEmpty(message))
+    {
+        <p>Message: @((MarkupString)message)</p>
+    }
+    return;
 }
 @if (RoleList == null)
 {
@@ -50,12 +54,12 @@ else
 
     <p>Role Count: @RoleList.Count</p>
 }
-
 @code {
     //NOTE: @attribute [Authorize(Roles = "Adminz")]; // DOES NOT SEEM TO WORK. DO NOT KNOW WHY.
     List<RoleModel>? RoleList { get; set; }
     string? userData;
     string? message;
+    bool? isAccessGranted = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -68,68 +72,36 @@ else
 
         if (response.accessGranted)
         {
+            isAccessGranted = true;
             RoleList = response.roleList;
+        } else
+        {
+            isAccessGranted = false;
         }
     }
 
     private async void AddUserToRole()
     {
-
+        UserRole ur = new()
+        {
+            RoleId = Guid.NewGuid(),
+            UserId = Guid.NewGuid()
+        };
+        //using (var msg = await Http.PostAsJsonAsync<LoginModel>("/api/auth/login", user, System.Threading.CancellationToken.None))
+        var response = await Client.Auth.ApiHandler<RoleModel>.GetApiDataAsync("api/auth/addUserToRole", jsr, Http);
     }
 
     private async Task<(bool accessGranted, List<RoleModel>? roleList)> GetRolesApi()
     {
-        var response = await Client.Auth.ApiHandler<RoleModel>.GetApiDataAsync("/api/auth/rolelist", jsr, Http);
+        var response = await Client.Auth.ApiHandler<RoleModel>.GetApiDataAsync("/api/auth/roleList", jsr, Http);
         if(response.HttpResponse?.IsSuccessStatusCode == true)
         {
             return (true,response.Data);
         } else
         {
-            message = $"{response.ErrorData?.Message} / {response.ErrorData?.Exception}";
+            message  = $"HttpResponse.StatusCode: {response.HttpResponse?.StatusCode}<hr />";
         }
 
         return (false, null);
     }
-
-    //private async Task<(bool accessGranted, string error, List<RoleModel>? roleList)> GetRolesApi()
-    //{
-    //    bool accessGranted = false;
-    //    string error = string.Empty;
-    //    List<RoleModel>? roleList = null;
-    //    try
-    //    {
-    //        var requestMsg = new HttpRequestMessage(HttpMethod.Get, $"/api/auth/rolelist");
-    //        requestMsg.Headers.Add("Authorization", "Bearer " + userData);
-    //        var response = await Http.SendAsync(requestMsg);
-    //        switch (response.StatusCode)
-    //        {
-    //            case System.Net.HttpStatusCode.Unauthorized:
-    //                await jsr.InvokeVoidAsync("localStorage.removeItem", "user").ConfigureAwait(false);
-    //                userData = null;
-    //                error = "Unauthroized, token expired?";
-    //                break;
-    //            case System.Net.HttpStatusCode.Forbidden:
-    //                error = "Not allowed to see this!";
-    //                break;
-    //            case System.Net.HttpStatusCode.NoContent:
-    //                break;
-    //            case System.Net.HttpStatusCode.InternalServerError:
-    //                error = $"Internal Server Error: {response.Content}";
-    //                break;
-    //            default:
-    //                break;
-    //        }
-    //        if (response.IsSuccessStatusCode)
-    //        {
-    //            accessGranted = true;
-    //            roleList = await response.Content.ReadFromJsonAsync<List<RoleModel>>();
-    //        }
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        error = ex.ToString();
-    //    }
-
-    //    return (accessGranted, error, roleList);
-    //}
 }

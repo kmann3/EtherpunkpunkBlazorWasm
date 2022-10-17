@@ -38,7 +38,7 @@ public class EpunkDbContext : DbContext
         AppRole adminRole = new AppRole()
         {
             Id = Guid.NewGuid(),
-            Role = "Admin"
+            RoleName = "Admin"
         };
 
         AppUserRole adminUserRoleLink = new AppUserRole

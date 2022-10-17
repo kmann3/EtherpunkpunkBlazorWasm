@@ -26,7 +26,7 @@ public class AuthController : ControllerBase
 		claimList.Add(new Claim(JwtRegisteredClaimNames.Jti, user.Email));
 		foreach (var role in user.AppUserRoles.Select ( x=> x.Role))
 		{
-			claimList.Add(new Claim(ClaimTypes.Role, role.Role));
+			claimList.Add(new Claim(ClaimTypes.Role, role.RoleName));
 		}
 
 		var token = new JwtSecurityToken(issuer: AppSettings.ValidIssuer, audience: AppSettings.ValidAudience, claims: claimList, expires: DateTime.Now.AddDays(AppSettings.TokenLengthInDays), signingCredentials: credentials);
@@ -91,7 +91,7 @@ public class AuthController : ControllerBase
 			.Include(x => x.Users)
 			.Select(x => new RoleModel() {
 				Id = x.Id,
-				Name = x.Role,
+				Name = x.RoleName,
 				UserList = (List<RoleModel.User>)x.Users.Select(x => new RoleModel.User() { Id = x.UserId, Name = x.User.Email })
 			});
 		return await roles.ToListAsync();

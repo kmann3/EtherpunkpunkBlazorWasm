@@ -8,7 +8,7 @@ namespace EtherpunkBlazorWasm.Shared;
 public class RoleModel
 {
 	public Guid Id { get; set; }
-	public string Name { get; set; }
+	public string Name { get; set; } = string.Empty;
 	public List<User> UserList { get; set; } = new();
 
 	public class User

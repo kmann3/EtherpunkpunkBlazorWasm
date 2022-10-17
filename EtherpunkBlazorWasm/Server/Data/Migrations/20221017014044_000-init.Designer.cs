@@ -8,10 +8,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace EtherpunkBlazorWasm.Server.Migrations
+namespace EtherpunkBlazorWasm.Server.Data.Migrations
 {
     [DbContext(typeof(EpunkDbContext))]
-    [Migration("20221014182105_000-init")]
+    [Migration("20221017014044_000-init")]
     partial class _000init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,6 +32,13 @@ namespace EtherpunkBlazorWasm.Server.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("AppRoles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("a228fa83-e5b6-4d1d-9636-55228302b22f"),
+                            Role = "Admin"
+                        });
                 });
 
             modelBuilder.Entity("EtherpunkBlazorWasm.Server.Data.Entities.AppUser", b =>
@@ -54,6 +61,29 @@ namespace EtherpunkBlazorWasm.Server.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("AppUsers");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("e39dfd1f-85b8-4586-8a98-037611b60558"),
+                            CreatedOn = new DateTime(2022, 10, 17, 1, 40, 43, 908, DateTimeKind.Utc).AddTicks(3242),
+                            Email = "admin@admin.com",
+                            PasswordHash = "$2b$12$k87L/MF28Q673VKh8/cPi.pNe6atmnYcCQXfH80DwODOUtvUgB1NK"
+                        },
+                        new
+                        {
+                            Id = new Guid("dc09e4be-9631-4adf-b65e-6a396859b946"),
+                            CreatedOn = new DateTime(2022, 10, 17, 1, 40, 44, 170, DateTimeKind.Utc).AddTicks(4167),
+                            Email = "regularuser1@user.com",
+                            PasswordHash = "$2b$12$k87L/MF28Q673VKh8/cPi.pNe6atmnYcCQXfH80DwODOUtvUgB1NK"
+                        },
+                        new
+                        {
+                            Id = new Guid("4e375925-a166-4924-8289-c80718f83c29"),
+                            CreatedOn = new DateTime(2022, 10, 17, 1, 40, 44, 425, DateTimeKind.Utc).AddTicks(1649),
+                            Email = "regularuser2@user.com",
+                            PasswordHash = "$2b$12$k87L/MF28Q673VKh8/cPi.pNe6atmnYcCQXfH80DwODOUtvUgB1NK"
+                        });
                 });
 
             modelBuilder.Entity("EtherpunkBlazorWasm.Server.Data.Entities.AppUserRole", b =>
@@ -69,6 +99,13 @@ namespace EtherpunkBlazorWasm.Server.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("AppUserRoles");
+
+                    b.HasData(
+                        new
+                        {
+                            RoleId = new Guid("a228fa83-e5b6-4d1d-9636-55228302b22f"),
+                            UserId = new Guid("e39dfd1f-85b8-4586-8a98-037611b60558")
+                        });
                 });
 
             modelBuilder.Entity("EtherpunkBlazorWasm.Server.Data.Entities.AppUserRole", b =>

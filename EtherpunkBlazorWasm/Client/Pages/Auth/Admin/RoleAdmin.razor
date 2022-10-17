@@ -3,16 +3,19 @@
 @inject IJSRuntime jsr
 @inject NavigationManager nav
 @using EtherpunkBlazorWasm.Shared
+@using Microsoft.AspNetCore.Authorization;
 
 <h3>Role Administration</h3>
+@if(!string.IsNullOrEmpty(message))
+{
+    <p>Message: @message</p>
+}
 @if (RoleList == null)
 {
-	<p><em>Loading... </em></p>
-
+    <p><em>Loading... </em></p>
 }
 else
 {
-
     <table class="table table-striped">
       <thead>
         <tr>
@@ -48,51 +51,27 @@ else
 }
 
 @code {
-    List<RoleModel> RoleList { get; set; }
+    List<RoleModel>? RoleList { get; set; }
     string? userdata;
+    string? message;
 
-    protected override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
+        await base.OnInitializedAsync();
+
         // Validate user auth to make sure they can be here
         // Get list roles and users
+        var response = await GetRolesApi();
 
-        // Fake Data for messing with layout
-        RoleList = new List<RoleModel>()
+        if (response.accessGranted)
         {
-            new RoleModel()
-            {
-                Name = "Admin",
-                Id = Guid.NewGuid(),
-                UserList = new List<RoleModel.User>()
-                {
-                    new RoleModel.User()
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "admin@etherpunk.com"
-                    },
-                    new RoleModel.User()
-                    {
-                        Id = Guid.NewGuid(),
-                        Name = "Foo@bar.com"
-                    }
-                }
-            }
-        };
+            RoleList = response.roleList;
 
-        return base.OnInitializedAsync();
-    }
-
-    private async Task<string> GetJWT()
-    {
-        userdata = await jsr.InvokeAsync<string>("localStorage.getItem", "user").ConfigureAwait(false);
-        if (!string.IsNullOrEmpty(userdata))
-        {
-            var dataArray = userdata.Split(';', 2);
-            if (dataArray.Length == 2)
-                return dataArray[1];
         }
-
-        throw new Exception("Malformed UserData");
+        else
+        {
+            message = response.error;
+        }
     }
 
     private async Task<(bool accessGranted, string error, List<RoleModel>? roleList)> GetRolesApi()
@@ -103,7 +82,7 @@ else
         try
         {
             var requestMsg = new HttpRequestMessage(HttpMethod.Get, $"/api/auth/rolelist");
-            requestMsg.Headers.Add("Authorization", "Bearer " + await GetJWT());
+            requestMsg.Headers.Add("Authorization", "Bearer " + await Client.Auth.Jwt.GetJWT(jsr));
             var response = await Http.SendAsync(requestMsg);
             switch (response.StatusCode)
             {

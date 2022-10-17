@@ -11,29 +11,47 @@ public class EpunkDbContext : DbContext
         builder.Entity<AppUserRole>().HasKey(nameof(AppUserRole.RoleId), nameof(AppUserRole.UserId));
 
         // Uncommon the following if you want to add an admin user to view WeatherForecase admin area.
-        //AppUser adminUser = new AppUser()
-        //{
-        //    CreatedOn = DateTime.UtcNow,
-        //    Email = "admin@admin.com",
-        //    Id = Guid.NewGuid(),
-        //    PasswordHash = UserDatabase.CreateHash("password")
-        //};
+        AppUser adminUser = new AppUser()
+        {
+            CreatedOn = DateTime.UtcNow,
+            Email = "admin@admin.com",
+            Id = Guid.NewGuid(),
+            PasswordHash = UserDatabase.CreateHash("password")
+        };
 
-        //AppRole adminRole = new AppRole()
-        //{
-        //    Id = Guid.NewGuid(),
-        //    Role = "Admin"
-        //};
+        AppUser regularUser1 = new AppUser()
+        {
+            CreatedOn = DateTime.UtcNow,
+            Email = "regularuser1@user.com",
+            Id = Guid.NewGuid(),
+            PasswordHash = UserDatabase.CreateHash("password")
+        };
 
-        //AppUserRole adminUserRoleLink = new AppUserRole
-        //{
-        //    RoleId = adminRole.Id,
-        //    UserId = adminUser.Id,
-        //};
+        AppUser regularUser2 = new AppUser()
+        {
+            CreatedOn = DateTime.UtcNow,
+            Email = "regularuser2@user.com",
+            Id = Guid.NewGuid(),
+            PasswordHash = UserDatabase.CreateHash("password")
+        };
 
-        //builder.Entity<AppUser>().HasData(adminUser);
-        //builder.Entity<AppRole>().HasData(adminRole);
-        //builder.Entity<AppUserRole>().HasData(adminUserRoleLink);
+        AppRole adminRole = new AppRole()
+        {
+            Id = Guid.NewGuid(),
+            Role = "Admin"
+        };
+
+        AppUserRole adminUserRoleLink = new AppUserRole
+        {
+            RoleId = adminRole.Id,
+            UserId = adminUser.Id,
+        };
+
+        builder.Entity<AppUser>().HasData(adminUser);
+        builder.Entity<AppUser>().HasData(regularUser1);
+        builder.Entity<AppUser>().HasData(regularUser2);
+        builder.Entity<AppRole>().HasData(adminRole);
+        builder.Entity<AppUserRole>().HasData(adminUserRoleLink);
     }
 
 protected override void OnConfiguring(DbContextOptionsBuilder options)

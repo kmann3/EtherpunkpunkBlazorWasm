@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace EtherpunkBlazorWasm.Server.Migrations
+namespace EtherpunkBlazorWasm.Server.Data.Migrations
 {
     public partial class _000init : Migration
     {
@@ -58,6 +58,31 @@ namespace EtherpunkBlazorWasm.Server.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.InsertData(
+                table: "AppRoles",
+                columns: new[] { "Id", "Role" },
+                values: new object[] { new Guid("a228fa83-e5b6-4d1d-9636-55228302b22f"), "Admin" });
+
+            migrationBuilder.InsertData(
+                table: "AppUsers",
+                columns: new[] { "Id", "CreatedOn", "Email", "PasswordHash" },
+                values: new object[] { new Guid("4e375925-a166-4924-8289-c80718f83c29"), new DateTime(2022, 10, 17, 1, 40, 44, 425, DateTimeKind.Utc).AddTicks(1649), "regularuser2@user.com", "$2b$12$k87L/MF28Q673VKh8/cPi.pNe6atmnYcCQXfH80DwODOUtvUgB1NK" });
+
+            migrationBuilder.InsertData(
+                table: "AppUsers",
+                columns: new[] { "Id", "CreatedOn", "Email", "PasswordHash" },
+                values: new object[] { new Guid("dc09e4be-9631-4adf-b65e-6a396859b946"), new DateTime(2022, 10, 17, 1, 40, 44, 170, DateTimeKind.Utc).AddTicks(4167), "regularuser1@user.com", "$2b$12$k87L/MF28Q673VKh8/cPi.pNe6atmnYcCQXfH80DwODOUtvUgB1NK" });
+
+            migrationBuilder.InsertData(
+                table: "AppUsers",
+                columns: new[] { "Id", "CreatedOn", "Email", "PasswordHash" },
+                values: new object[] { new Guid("e39dfd1f-85b8-4586-8a98-037611b60558"), new DateTime(2022, 10, 17, 1, 40, 43, 908, DateTimeKind.Utc).AddTicks(3242), "admin@admin.com", "$2b$12$k87L/MF28Q673VKh8/cPi.pNe6atmnYcCQXfH80DwODOUtvUgB1NK" });
+
+            migrationBuilder.InsertData(
+                table: "AppUserRoles",
+                columns: new[] { "RoleId", "UserId" },
+                values: new object[] { new Guid("a228fa83-e5b6-4d1d-9636-55228302b22f"), new Guid("e39dfd1f-85b8-4586-8a98-037611b60558") });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AppUserRoles_UserId",

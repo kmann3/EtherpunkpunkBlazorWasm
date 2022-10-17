@@ -9,11 +9,11 @@ public class RoleModel
 {
 	public Guid Id { get; set; }
 	public string Name { get; set; }
-	public List<User> UserList { get; set; }
+	public List<User> UserList { get; set; } = new();
 
 	public class User
 	{
 		public Guid Id { get; set; }
-		public string Name { get; set; }
+		public string Name { get; set; } = string.Empty;
 	}
 }

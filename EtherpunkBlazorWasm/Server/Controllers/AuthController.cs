@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Runtime.CompilerServices;
 using System.Security.Claims;
 
 namespace EtherpunkBlazorWasm.Server.Controllers;
@@ -96,4 +97,23 @@ public class AuthController : ControllerBase
 			});
 		return await roles.ToListAsync();
 	}
+
+    [HttpPost, Authorize(Roles = "Admin"), Route("api/auth/addusertorole")]
+    public async Task<RoleModel?> AddUserToRole(Guid roleId, Guid userId)
+	{
+		dbContext.AppUserRoles.Add(new AppUserRole() { RoleId= roleId, UserId = userId });
+		await dbContext.SaveChangesAsync();
+
+		var newRoleUserList = dbContext.AppRoles
+            .Include(x => x.Users)
+			.Where(x => x.Id == roleId)
+            .Select(x => new RoleModel()
+            {
+                Id = x.Id,
+                Name = x.RoleName,
+                UserList = (List<RoleModel.User>)x.Users.Select(x => new RoleModel.User() { Id = x.UserId, Name = x.User.Email })
+            });
+
+		return await newRoleUserList.SingleOrDefaultAsync();
+    }
 }

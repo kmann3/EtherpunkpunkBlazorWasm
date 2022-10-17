@@ -4,6 +4,7 @@
 @inject NavigationManager nav
 @using EtherpunkBlazorWasm.Shared
 @using Microsoft.AspNetCore.Authorization;
+@attribute [Authorize(Roles = "Adminz")];
 
 <h3>Role Administration</h3>
 @if(!string.IsNullOrEmpty(message))
@@ -51,13 +52,15 @@ else
 }
 
 @code {
+    //@attribute [Authorize(Roles = "Adminz")]; // DOES NOT SEEM TO WORK. DO NOT KNOW WHY.
     List<RoleModel>? RoleList { get; set; }
-    string? userdata;
+    string? userData;
     string? message;
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
+        userData = await Client.Auth.Jwt.GetJWT(jsr);
 
         // Validate user auth to make sure they can be here
         // Get list roles and users
@@ -66,53 +69,67 @@ else
         if (response.accessGranted)
         {
             RoleList = response.roleList;
-
-        }
-        else
-        {
-            message = response.error;
         }
     }
 
-    private async Task<(bool accessGranted, string error, List<RoleModel>? roleList)> GetRolesApi()
+    private async void AddUserToRole()
     {
-        bool accessGranted = false;
-        string error = string.Empty;
-        List<RoleModel>? roleList = null;
-        try
+
+    }
+
+    private async Task<(bool accessGranted, List<RoleModel>? roleList)> GetRolesApi()
+    {
+        var response = await Client.Auth.ApiHandler<RoleModel>.GetApiDataAsync("/api/auth/rolelist", jsr, Http);
+        if(response.HttpResponse?.IsSuccessStatusCode == true)
         {
-            var requestMsg = new HttpRequestMessage(HttpMethod.Get, $"/api/auth/rolelist");
-            requestMsg.Headers.Add("Authorization", "Bearer " + await Client.Auth.Jwt.GetJWT(jsr));
-            var response = await Http.SendAsync(requestMsg);
-            switch (response.StatusCode)
-            {
-                case System.Net.HttpStatusCode.Unauthorized:
-                    await jsr.InvokeVoidAsync("localStorage.removeItem", "user").ConfigureAwait(false);
-                    userdata = null;
-                    error = "Unauthroized, token expired?";
-                    break;
-                case System.Net.HttpStatusCode.Forbidden:
-                    error = "Not allowed to see this!";
-                    break;
-                case System.Net.HttpStatusCode.NoContent:
-                    break;
-                case System.Net.HttpStatusCode.InternalServerError:
-                    error = $"Internal Server Error: {response.Content}";
-                    break;
-                default:
-                    break;
-            }
-            if (response.IsSuccessStatusCode)
-            {
-                accessGranted = true;
-                roleList = await response.Content.ReadFromJsonAsync<List<RoleModel>>();
-            }
-        }
-        catch (Exception ex)
+            return (true,response.Data);
+        } else
         {
-            error = ex.ToString();
+            message = $"{response.ErrorData?.Message} / {response.ErrorData?.Exception}";
         }
 
-        return (accessGranted, error, roleList);
+        return (false, null);
     }
+
+    //private async Task<(bool accessGranted, string error, List<RoleModel>? roleList)> GetRolesApi()
+    //{
+    //    bool accessGranted = false;
+    //    string error = string.Empty;
+    //    List<RoleModel>? roleList = null;
+    //    try
+    //    {
+    //        var requestMsg = new HttpRequestMessage(HttpMethod.Get, $"/api/auth/rolelist");
+    //        requestMsg.Headers.Add("Authorization", "Bearer " + userData);
+    //        var response = await Http.SendAsync(requestMsg);
+    //        switch (response.StatusCode)
+    //        {
+    //            case System.Net.HttpStatusCode.Unauthorized:
+    //                await jsr.InvokeVoidAsync("localStorage.removeItem", "user").ConfigureAwait(false);
+    //                userData = null;
+    //                error = "Unauthroized, token expired?";
+    //                break;
+    //            case System.Net.HttpStatusCode.Forbidden:
+    //                error = "Not allowed to see this!";
+    //                break;
+    //            case System.Net.HttpStatusCode.NoContent:
+    //                break;
+    //            case System.Net.HttpStatusCode.InternalServerError:
+    //                error = $"Internal Server Error: {response.Content}";
+    //                break;
+    //            default:
+    //                break;
+    //        }
+    //        if (response.IsSuccessStatusCode)
+    //        {
+    //            accessGranted = true;
+    //            roleList = await response.Content.ReadFromJsonAsync<List<RoleModel>>();
+    //        }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        error = ex.ToString();
+    //    }
+
+    //    return (accessGranted, error, roleList);
+    //}
 }

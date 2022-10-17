@@ -3,6 +3,7 @@ using System;
 using EtherpunkBlazorWasm.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EtherpunkBlazorWasm.Server.Data.Migrations
 {
     [DbContext(typeof(EpunkDbContext))]
-    partial class EpunkDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221017021603_001-changeRoleToRoleName")]
+    partial class _001changeRoleToRoleName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.10");

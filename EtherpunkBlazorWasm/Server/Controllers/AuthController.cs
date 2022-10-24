@@ -130,6 +130,8 @@ public class AuthController : ControllerBase
     [HttpPost, Authorize(Roles = "Admin"), Route("api/auth/deleteRole")]
     public async Task<bool> DeleteRole([FromBody] Guid roleId)
     {
+		// Delete user role
+		// Delete role
 		return false;
     }
 }

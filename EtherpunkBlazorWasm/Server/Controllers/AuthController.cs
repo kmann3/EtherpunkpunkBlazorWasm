@@ -130,8 +130,18 @@ public class AuthController : ControllerBase
     [HttpPost, Authorize(Roles = "Admin"), Route("api/auth/deleteRole")]
     public async Task<bool> DeleteRole([FromBody] Guid roleId)
     {
-		// Delete user role
-		// Delete role
-		return false;
+		try
+		{
+			var usersInRole = dbContext.AppUserRoles.Where(x => x.RoleId == roleId);
+			dbContext.RemoveRange(usersInRole);
+			dbContext.Remove(dbContext.AppRoles.Select(x => x.Id));
+
+			await dbContext.SaveChangesAsync();
+
+			return true;
+		} catch
+		{
+			return false;
+		}
     }
 }

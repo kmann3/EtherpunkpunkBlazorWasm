@@ -98,15 +98,20 @@ public class AuthController : ControllerBase
         return await roles.ToListAsync();
 	}
 
+	/// <summary>
+	/// Adds a user to the rule.
+	/// </summary>
+	/// <param name="userRole">User and role to create.</param>
+	/// <returns>Returns an updated list of users for the role that the user was added to.</returns>
     [HttpPost, Authorize(Roles = "Admin"), Route("api/auth/addUserToRole")]
     public async Task<RoleModel?> AddUserToRole([FromBody] UserRole userRole)
-	{
-		dbContext.AppUserRoles.Add(new AppUserRole() { RoleId= userRole.RoleId, UserId = userRole.UserId });
-		await dbContext.SaveChangesAsync();
+    {
+        dbContext.AppUserRoles.Add(new AppUserRole() { RoleId = userRole.RoleId, UserId = userRole.UserId });
+        await dbContext.SaveChangesAsync();
 
-		var newRoleUserList = dbContext.AppRoles
+        var newRoleUserList = dbContext.AppRoles
             .Include(x => x.Users)
-			.Where(x => x.Id == userRole.RoleId)
+            .Where(x => x.Id == userRole.RoleId)
             .Select(x => new RoleModel()
             {
                 Id = x.Id,
@@ -114,6 +119,17 @@ public class AuthController : ControllerBase
                 UserList = (List<RoleModel.User>)x.Users.Select(x => new RoleModel.User() { Id = x.UserId, Name = x.User.Email })
             });
 
-		return await newRoleUserList.SingleOrDefaultAsync();
+        return await newRoleUserList.SingleOrDefaultAsync();
+    }
+
+	/// <summary>
+	/// Delete a role.
+	/// </summary>
+	/// <param name="roleId">Id if the role to delete</param>
+	/// <returns>True if role was successfully deleted. False otherwise.</returns>
+    [HttpPost, Authorize(Roles = "Admin"), Route("api/auth/deleteRole")]
+    public async Task<bool> DeleteRole([FromBody] Guid roleId)
+    {
+		return false;
     }
 }

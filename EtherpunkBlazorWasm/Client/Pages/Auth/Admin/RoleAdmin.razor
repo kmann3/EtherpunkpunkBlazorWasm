@@ -61,10 +61,17 @@ else
 
 @if (DeleteDialogIsOpen)
 {
-   <EtherpunkBlazorWasm.Client.Pages.Auth.Admin.Components.ConfirmDeleteDialog
+   <ConfirmDeleteDialog
            Message="@deleteDialogMessage"
            OnClose="@OnDeleteDialogClose">
-   </EtherpunkBlazorWasm.Client.Pages.Auth.Admin.Components.ConfirmDeleteDialog>
+   </ConfirmDeleteDialog>
+}
+@if (RenameDialogIsOpen)
+{
+    <RenameRoleDialog
+        Message="@renameDialogMessage"
+        OnClose="@OnRenameDialogClose">
+    </RenameRoleDialog>
 }
 @code {
     private List<RoleModel>? RoleList { get; set; }
@@ -74,6 +81,9 @@ else
 
     private bool DeleteDialogIsOpen = false;
     private string deleteDialogMessage = String.Empty;
+
+    private bool RenameDialogIsOpen = false;
+    private string renameDialogMessage = String.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -144,6 +154,16 @@ else
         }
 
         DeleteDialogIsOpen = false;
+    }
+
+    private async Task OnRenameDialogClose(RenameRoleDialog.ReturnAction returnData)
+    {
+        if(!returnData.DidCancel)
+        {
+            var response = await Client.Auth.ApiHandler<bool>.GetApiDataAsync("api/auth/renameRole", jsr, Http);
+            // Refresh list
+            message = "TO BE IMPLEMENTED!";
+        }
     }
 
     /// <summary>

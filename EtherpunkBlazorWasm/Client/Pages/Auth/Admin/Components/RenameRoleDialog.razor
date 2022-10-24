@@ -8,11 +8,11 @@
          </div>
          <div class="modal-body">
             <p>@Message</p>
+            <InputText id="name" @bind-Value="returnData.NewRoleName" />
          </div>
          <div class="modal-footer">
-            
-            <button type="button" class="btn btn-danger" @onclick=@Ok>Delete</button>
-            <button type="button" class="btn btn-warning" @onclick="@Cancel">Cancel</button>
+            <button type="button" class="btn btn-info" @onclick=@Ok>Rename</button>
+            <button type="button" class="btn btn-info" @onclick="@Cancel">Cancel</button>
          </div>
       </div>
    </div>
@@ -20,16 +20,19 @@
 
 @code {
     [Parameter] public string Message { get; set; } = String.Empty;
-    [Parameter] public EventCallback<bool> OnClose { get; set; }
+    [Parameter] public EventCallback<ReturnAction> OnClose { get; set; }
+
+    private ReturnAction returnData = new();
 
     private Task Cancel()
     {
-        return OnClose.InvokeAsync(false);
+        returnData.DidCancel = true;
+        return OnClose.InvokeAsync(returnData);
     }
 
     private Task Ok()
     {
-        return OnClose.InvokeAsync(true);
+        return OnClose.InvokeAsync(returnData);
     }
 
     public class ReturnAction

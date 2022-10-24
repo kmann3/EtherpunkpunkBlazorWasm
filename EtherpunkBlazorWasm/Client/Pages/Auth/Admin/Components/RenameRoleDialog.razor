@@ -21,14 +21,20 @@
 @code {
     [Parameter] public string Message { get; set; } = String.Empty;
     [Parameter] public EventCallback<bool> OnClose { get; set; }
-   
-   private Task Cancel()
-   {
-      return OnClose.InvokeAsync(false);
-   }
-   
-   private Task Ok()
-   {
-      return OnClose.InvokeAsync(true);
-   }
+
+    private Task Cancel()
+    {
+        return OnClose.InvokeAsync(false);
+    }
+
+    private Task Ok()
+    {
+        return OnClose.InvokeAsync(true);
+    }
+
+    public class ReturnAction
+    {
+        public bool DidCancel { get; set; }
+        public string NewRoleName { get; set; } = String.Empty;
+    }
 }

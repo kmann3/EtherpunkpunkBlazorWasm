@@ -47,7 +47,7 @@ public class AuthController : ControllerBase
 	{
 		if (string.IsNullOrWhiteSpace(reg.Email) || string.IsNullOrWhiteSpace(reg.Password))
 		{
-			string errorMessage = string.Empty;
+			string errorMessage = String.Empty;
 			if (string.IsNullOrWhiteSpace(reg.Email))
 				errorMessage += " Email address is empty;";
 			if (string.IsNullOrWhiteSpace(reg.Password))
@@ -69,7 +69,7 @@ public class AuthController : ControllerBase
 	{
 		if (string.IsNullOrWhiteSpace(login.Email) || string.IsNullOrWhiteSpace(login.Password))
 		{
-			string errorMessage = string.Empty;
+			string errorMessage = String.Empty;
 			if (string.IsNullOrWhiteSpace(login.Email))
 				errorMessage += " Email address is empty;";
 			if (string.IsNullOrWhiteSpace(login.Password))

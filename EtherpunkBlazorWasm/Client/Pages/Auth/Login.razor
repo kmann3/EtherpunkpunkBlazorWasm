@@ -25,7 +25,7 @@
 
 @code {
 	LoginModel user = new LoginModel();
-	string message = string.Empty;
+	string message = String.Empty;
 	bool isDisabled = false;
 
 	[Parameter]
@@ -52,7 +52,7 @@
 				else
 				{
 					// Incorrect username/password most likely
-					message = result?.Message ?? string.Empty;
+					message = result?.Message ?? String.Empty;
 					isDisabled = false;
 					return;
 				}

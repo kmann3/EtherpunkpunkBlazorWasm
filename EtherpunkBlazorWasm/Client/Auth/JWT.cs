@@ -14,6 +14,6 @@ public static class Jwt
 				return dataArray[1];
 		}
 
-		return string.Empty;
+		return String.Empty;
 	}
 }

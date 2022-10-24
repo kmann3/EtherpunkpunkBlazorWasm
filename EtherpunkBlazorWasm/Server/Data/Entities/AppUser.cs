@@ -7,7 +7,7 @@ public class AppUser
     [Key]
     public Guid Id { get; set; } = Guid.NewGuid();
     [Required]
-    public string Email { get; set; } = string.Empty;
+    public string Email { get; set; } = String.Empty;
     [Required]
     public string PasswordHash { get; set; }
     [Required]

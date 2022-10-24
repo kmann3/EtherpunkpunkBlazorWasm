@@ -10,7 +10,7 @@ public class ReturnData<T>
 
     public class ErrorDetail
     {
-        public string Message { get; set; } = string.Empty;
+        public string Message { get; set; } = String.Empty;
         public Exception? Exception { get; set; } = null;
 
     }

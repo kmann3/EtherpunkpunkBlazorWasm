@@ -38,6 +38,18 @@
     public class ReturnAction
     {
         public bool DidCancel { get; set; }
+        public Guid RoleId { get; set; } = Guid.Empty;
         public string NewRoleName { get; set; } = String.Empty;
+
+        public static implicit operator EtherpunkBlazorWasm.Shared.RenameRole(ReturnAction a)
+        {
+            EtherpunkBlazorWasm.Shared.RenameRole returnData = new()
+                {
+                    NewName = a.NewRoleName,
+                    RoleId = a.RoleId
+                };
+
+            return returnData;
+        }
     }
 }

@@ -144,4 +144,25 @@ public class AuthController : ControllerBase
 			return false;
 		}
     }
+
+	/// <summary>
+	/// Rename a given role.
+	/// </summary>
+	/// <param name="roleInfo">ID of role to change and new name to be given to role</param>
+	/// <returns>Returns true if success, false if failure. Failure will more likely mean roleId doesn't exist.</returns>
+    [HttpPost, Authorize(Roles = "Admin"), Route("api/auth/renameRole")]
+    public async Task<bool> RenameRole([FromBody] RenameRole roleInfo)
+	{
+		try
+		{
+			var role = dbContext.AppRoles.Where(x => x.Id == roleInfo.RoleId).Single();
+			role.RoleName = roleInfo.NewName;
+			await dbContext.SaveChangesAsync();
+
+			return true;
+		} catch
+		{
+			return false;
+		}
+	}
 }

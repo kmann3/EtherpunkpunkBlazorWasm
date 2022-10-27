@@ -40,8 +40,8 @@ else
                 <td>
                     @foreach(var user in role.UserList)
                     {
-                            <a href="/admin/user/@user.Id">@user.Name</a>
-                            <span title="Remove this user from role"><i class="fa-solid fa-user-slash"></i></span>
+                        <a href="/admin/user/@user.Id">@user.Name</a>
+                        <a class="btn btn-info">Remove User From Role</a>
                         <br />
                     }
                 </td>
@@ -159,9 +159,18 @@ else
     {
         if(!returnData.DidCancel)
         {
-            var response = await Client.Auth.ApiHandler<bool>.GetApiDataAsync("api/auth/renameRole", jsr, Http);
-            // Refresh list
-            message = "TO BE IMPLEMENTED!";
+
+            var response = await Client.Auth.ApiHandler<RenameRole>.PostApiDataAsync("api/auth/renameRole", returnData, jsr, Http);
+            //LoginResult result = await msg.Content.ReadFromJsonAsync<LoginResult>() ?? new LoginResult() { Success = false };
+            // HttpResponse can be null, false, or true. Anything other than true means failure of some kind or another.
+            
+            if(response.HttpResponse?.IsSuccessStatusCode != true)
+            {
+                return;
+            }
+
+            var roleToUpdate = RoleList!.Where(x => x.Id == returnData.RoleId).Single();
+            roleToUpdate.Name = returnData.NewRoleName;
         }
     }
 

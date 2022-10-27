@@ -66,5 +66,23 @@ public static class ApiHandler<T>
         return returnData;
     }
 
-    
+    public static async Task<ReturnData<T>> PostApiDataAsync(string uri, T sendData, IJSRuntime jsr, HttpClient http)
+    {
+        ReturnData<T> returnData = new ReturnData<T>();
+        try
+        {
+            
+
+        }
+        catch (Exception ex)
+        {
+            // This will NOT catch errors in the API itself. Only exception thrown in this method.
+            returnData.ErrorData = new ReturnData<T>.ErrorDetail()
+            {
+                Exception = ex
+            };
+        }
+
+        return returnData;
+    }
 }

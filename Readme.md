@@ -2,6 +2,10 @@
 This is meant to be a JWT / Identity-like template.
 Uses .Net 7. You'll need Visual Studio 2022. It should be easy enough to translate this to .Net 6 though.
 
+Thrid party libraries / tools:
+
+* Bcrypt: Used for password hashing. More secure than other options. Replaced: HMACMD5. Staying up to date on password hashing requires work and thought. You should occasionally look and see if what you're using is still secure.
+
 ## Install
 Drop to a command prompt. Go to the root directory of solution. `dotnet new install .`
 
@@ -14,7 +18,6 @@ Name | License | URL or Other Information
 --- | --- | ---
 EtherpunkBlazorWasm | License: MIT | This project
 Bcrypt | https://github.com/BcryptNet/bcrypt.net | License: MIT
-FontAwesome | https://fontawesome.com | License: CC BY 4.0 License  - [CC BY 4.0 License ](https://fontawesome.com/license/free) - specifically: Downloaded Font Awesome Free files already contain embedded comments with sufficient attribution, so you shouldn't need to do anything additional when using these files normally. 
 
 
 ## To be implemented
@@ -35,6 +38,10 @@ FontAwesome | https://fontawesome.com | License: CC BY 4.0 License  - [CC BY 4.0
 - Add Server-side logout / forced logout
 - User maintained sessions / ability to revoke sessions (this would be nice if you forgot to logout at a public machine like a library)
 - Is there anything that can be don about SCS00005 - Weak Number Generator? That's the only security issue the scanner has found thus far. Need to investigate further.
+- Add option in template for various useful things:
+	* Font-Awesome - as well as adding examples of this, perhaps in role and user administration
+		FontAwesome | https://fontawesome.com | License: CC BY 4.0 License  - [CC BY 4.0 License ](https://fontawesome.com/license/free) - specifically: Downloaded Font Awesome Free files already contain embedded comments with sufficient attribution, so you shouldn't need to do anything additional when using these files normally. 
+	* Open Source datagrids such as MudBlazor - Add examples in Weather ; Should consider this over BootStrap as well in an option?
 
 Small things:
 - Go through warnings and messages. Tweak things like extra lines, sort usings.

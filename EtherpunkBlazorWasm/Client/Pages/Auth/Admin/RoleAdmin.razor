@@ -46,10 +46,10 @@ else
                     }
                 </td>
                     <td>
-                        <span title="Add a user"><i class="fa-solid fa-user-plus"></i></span> | 
-                        <span title="Edit role name"><i class="fa-solid fa-pencil"></i></span> | 
-                        <span title="Expire all tokens"><i class="fa-solid fa-user-xmark"></i></span> | 
-                        <span title="Delete role"><a class="btn btn-danger" @onclick="() => DeleteRole(role.Id, role.Name)">Delete</a></span>
+                        <a class="btn btn-info">Add A User</a>
+                        <a class="btn btn-info">Rename Role</a>
+                        <a class="btn btn-warning">Expire All Tokens</a>
+                        <a class="btn btn-danger" @onclick="() => DeleteRole(role.Id, role.Name)">Delete</a>
                     </td>
             </tr>
         }

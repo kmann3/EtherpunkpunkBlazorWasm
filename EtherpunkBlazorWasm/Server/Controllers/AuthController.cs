@@ -84,6 +84,10 @@ public class AuthController : ControllerBase
 		return new LoginResult { Message = "User/password not found.", Success = false };
 	}
 
+	/// <summary>
+	/// Gets a list of all the roles and includes users in the list of each role.
+	/// </summary>
+	/// <returns>Returns List<RoleModel> of all roles.</returns>
 	[HttpGet, Authorize(Roles = "Admin"), Route("api/auth/roleList")]
 	public async Task<List<RoleModel>> GetRoleList()
 	{

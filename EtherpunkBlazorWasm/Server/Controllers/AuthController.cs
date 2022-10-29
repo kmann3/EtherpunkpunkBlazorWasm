@@ -169,4 +169,18 @@ public class AuthController : ControllerBase
 			return false;
 		}
 	}
+
+	/// <summary>
+	/// Creates a new role and return the Guid of the new role.
+	/// </summary>
+	/// <param name="newRoleName">Name of the role to create.</param>
+	/// <returns>Returns the Guid of a new role. It should be all you need to add users quickly afterwards calling the API to get an updated list.</returns>
+    [HttpPost, Authorize(Roles = "Admin"), Route("api/auth/createRole")]
+    public async Task<Guid> CreateNewRole(string newRoleName)
+	{
+		AppRole role = new() { RoleName = newRoleName };
+		dbContext.Add(role);
+		await dbContext.SaveChangesAsync();
+		return role.Id;
+	}
 }

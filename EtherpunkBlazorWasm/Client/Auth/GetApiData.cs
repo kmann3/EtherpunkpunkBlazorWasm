@@ -1,11 +1,12 @@
 ﻿using EtherpunkBlazorWasm.Shared;
 using Microsoft.JSInterop;
 using System.Net.Http.Json;
+using static EtherpunkBlazorWasm.Shared.RoleModel;
 using static System.Net.WebRequestMethods;
 
 namespace EtherpunkBlazorWasm.Client.Auth;
 
-public static class ApiHandler<T>
+public static class ApiHandler
 {
     /// <summary>
     /// Gets data from an API.
@@ -19,14 +20,14 @@ public static class ApiHandler<T>
     /// <param name="jsr">No idea what this is.</param>
     /// <param name="http">Client control?</param>
     /// <returns></returns>
-    public static async Task<ReturnData<T>> GetApiDataAsync(string uri, IJSRuntime jsr, HttpClient http)
+    public static async Task<ReturnData<T>> GetApiDataAsync<T>(string uri, IJSRuntime jsr, HttpClient http)
     {
         ReturnData<T> returnData = new ReturnData<T>();
         try
         {
-            var requestMsg = new HttpRequestMessage(HttpMethod.Get, uri);
-            requestMsg.Headers.Add("Authorization", "Bearer " + await Jwt.GetJWT(jsr));
-            returnData.HttpResponse = await http.SendAsync(requestMsg);
+            HttpRequestMessage? message = new HttpRequestMessage(HttpMethod.Get, uri);
+            message.Headers.Add("Authorization", "Bearer " + await Jwt.GetJWT(jsr));
+            returnData.HttpResponse = await http.SendAsync(message);
             if (!returnData.HttpResponse.IsSuccessStatusCode)
             {
                 returnData.ErrorData = new();
@@ -66,18 +67,44 @@ public static class ApiHandler<T>
         return returnData;
     }
 
-    public static async Task<ReturnData<T>> PostApiDataAsync(string uri, T sendData, IJSRuntime jsr, HttpClient http)
+    public static async Task<ReturnData<T2>> PostApiDataAsync<T1, T2>(string uri, T1 sendData, IJSRuntime jsr, HttpClient http)
     {
-        ReturnData<T> returnData = new ReturnData<T>();
+        ReturnData<T2> returnData = new ReturnData<T2>();
         try
         {
-            
+            HttpResponseMessage? message = await http.PostAsJsonAsync<T1>(uri, sendData, CancellationToken.None);
 
+            if (!message.IsSuccessStatusCode)
+            {
+                returnData.ErrorData = new();
+
+                switch (returnData.HttpResponse.StatusCode)
+                {
+                    case System.Net.HttpStatusCode.Unauthorized:
+                        await jsr.InvokeVoidAsync("localStorage.removeItem", "user").ConfigureAwait(false);
+                        returnData.ErrorData.Message = "Unauthroized. Token expired or not logged in.";
+                        break;
+                    case System.Net.HttpStatusCode.Forbidden:
+                        returnData.ErrorData.Message = "Not allowed to see this!";
+                        break;
+                    case System.Net.HttpStatusCode.NoContent:
+                        break;
+                    case System.Net.HttpStatusCode.InternalServerError:
+                        returnData.ErrorData.Message = "Internal Server Error. Probably an exception was thrown in the API.";
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if (message.IsSuccessStatusCode && message.Content != null)
+            {
+                returnData.Data = await message.Content?.ReadFromJsonAsync<List<T2>?>();
+            }
         }
         catch (Exception ex)
         {
             // This will NOT catch errors in the API itself. Only exception thrown in this method.
-            returnData.ErrorData = new ReturnData<T>.ErrorDetail()
+            returnData.ErrorData = new ReturnData<T2>.ErrorDetail()
             {
                 Exception = ex
             };

@@ -183,7 +183,7 @@ else
 
 	private async Task<(string message, List<WeatherForecast>? weather)> GetWeatherForecast(string uri)
 	{
-		var data = await Client.Auth.ApiHandler<WeatherForecast>.GetApiDataAsync(uri, jsr, Http);
+		var data = await Client.Auth.ApiHandler.GetApiDataAsync<WeatherForecast>(uri, jsr, Http);
 		if (data.HttpResponse?.IsSuccessStatusCode == true)
 		{
 			return ($"{data.HttpResponseCode.ToString()} / {data.ErrorData?.Message} / {data.ErrorData?.Exception}", data.Data);

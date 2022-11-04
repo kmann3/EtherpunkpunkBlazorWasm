@@ -84,6 +84,11 @@ else
     private bool RenameDialogIsOpen = false;
     private string renameDialogMessage = String.Empty;
 
+    /// <summary>
+    /// Page load stuff.
+    /// - Get user token data
+    /// - Get list of roles
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
@@ -103,6 +108,13 @@ else
         }
     }
 
+    // Get roles
+    // Remove a user from a specific role: 
+    // Add a user to a role
+    // Rename a role
+    // Delete a role
+    // Create a new role
+
     /// <summary>
     /// 
     /// </summary>
@@ -114,9 +126,10 @@ else
             UserId = Guid.NewGuid()
         };
 
-        var response = await Client.Auth.ApiHandler<RoleModel>.GetApiDataAsync("api/auth/addUserToRole", jsr, Http);
+        var response = await Client.Auth.ApiHandler.GetApiDataAsync<RoleModel>("api/auth/addUserToRole", jsr, Http);
     }
 
+    
     /// <summary>
     /// 
     /// </summary>
@@ -128,12 +141,12 @@ else
                 UserId = Guid.NewGuid()
             };
 
-        var response = await Client.Auth.ApiHandler<RoleModel>.GetApiDataAsync("api/auth/removeUserFromRole", jsr, Http);
+        var response = await Client.Auth.ApiHandler.GetApiDataAsync<RoleModel>("api/auth/removeUserFromRole", jsr, Http);
     }
 
     private async void CreateNewRole()
     {
-        var response = await Client.Auth.ApiHandler<string>.GetApiDataAsync("api/auth/removeUserFromRole", jsr, Http);
+        var response = await Client.Auth.ApiHandler.GetApiDataAsync<string>("api/auth/removeUserFromRole", jsr, Http);
     }
 
     private void DeleteRole(Guid roleId, string roleName)
@@ -146,7 +159,7 @@ else
     {
         if(confirmDelete)
         {
-            var response = await Client.Auth.ApiHandler<bool>.GetApiDataAsync("api/auth/deleteRole", jsr, Http);
+            var response = await Client.Auth.ApiHandler.GetApiDataAsync<bool>("api/auth/deleteRole", jsr, Http);
             // Refresh list
             message = "TO BE IMPLEMENTED!";
 
@@ -160,7 +173,7 @@ else
         if(!returnData.DidCancel)
         {
 
-            var response = await Client.Auth.ApiHandler<RenameRole>.PostApiDataAsync("api/auth/renameRole", returnData, jsr, Http);
+            var response = await Client.Auth.ApiHandler.PostApiDataAsync<RenameRole, bool>("api/auth/renameRole", returnData, jsr, Http);
             //LoginResult result = await msg.Content.ReadFromJsonAsync<LoginResult>() ?? new LoginResult() { Success = false };
             // HttpResponse can be null, false, or true. Anything other than true means failure of some kind or another.
             
@@ -180,7 +193,7 @@ else
     /// <returns>Returns (bool, List<RoleModel>?) where bool is whether the request was successful and if it was gives the data.</returns>
     private async Task<(bool isSuccess, List<RoleModel>? roleList)> GetRolesApi()
     {
-        var response = await Client.Auth.ApiHandler<RoleModel>.GetApiDataAsync("/api/auth/roleList", jsr, Http);
+        var response = await Client.Auth.ApiHandler.GetApiDataAsync<RoleModel>("/api/auth/roleList", jsr, Http);
         if(response.HttpResponse?.IsSuccessStatusCode == true)
         {
             return (true,response.Data);

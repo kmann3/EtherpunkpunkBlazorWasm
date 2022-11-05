@@ -136,7 +136,7 @@ else
             }
             message += "Response succcess;";
 
-            RoleList.Add(new RoleModel()
+            RoleList?.Add(new RoleModel()
                 {
                     Id = response.Data,
                     Name = returnData.RoleName

@@ -8,7 +8,7 @@
          </div>
          <div class="modal-body">
             <p>@Message</p>
-            <InputText id="name" @bind-Value="returnData.RoleName" />
+            <InputText id="name" @bind-Value="returnData.RoleName" @onkeydown="@KeyAction" />
          </div>
          <div class="modal-footer">
             <button type="button" class="btn btn-primary" @onclick=@Ok>Create</button>
@@ -33,6 +33,18 @@
     private Task Ok()
     {
         return OnClose.InvokeAsync(returnData);
+    }
+
+    public void KeyAction(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" || e.Key == "NumpadEnter")
+        {
+            Ok();
+        }
+        else if (e.Key == "Escape")
+        {
+            Cancel();
+        }
     }
 
     public class ReturnAction

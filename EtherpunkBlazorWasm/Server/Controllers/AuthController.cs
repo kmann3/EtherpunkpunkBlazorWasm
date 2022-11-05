@@ -174,14 +174,21 @@ public class AuthController : ControllerBase
     /// Creates a new role and return the Guid of the new role.
     /// </summary>
     /// <param name="roleName">Name of the role to create.</param>
-    /// <returns>Returns the Guid of a new role. It should be all you need to add users quickly afterwards calling the API to get an updated list.</returns>
+    /// <returns>Returns the Guid of a new role. It should be all you need to add users quickly afterwards calling the API to get an updated list. Returns Guid.Empty if failure of any kind.</returns>
     //[HttpPost, Authorize(Roles = "Admin"), Route("api/auth/createRole")]
     [HttpPut, Route("api/auth/createRole")]
     public async Task<Guid> CreateNewRole([FromBody] string roleName)
 	{
-		AppRole role = new() { RoleName = roleName };
-		dbContext.Add(role);
-		await dbContext.SaveChangesAsync();
-		return role.Id;
+		try
+		{
+			AppRole role = new() { RoleName = roleName };
+			dbContext.Add(role);
+			await dbContext.SaveChangesAsync();
+			return role.Id;
+		} catch
+		{
+			// Odds are it's a duplicate name
+			return Guid.Empty;
+		}
 	}
 }

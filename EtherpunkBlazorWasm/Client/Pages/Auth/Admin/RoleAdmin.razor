@@ -23,7 +23,7 @@ else
 {
     if(!string.IsNullOrEmpty(message))
     {
-        <p>Message: @message</p>
+        <p>Message: @((MarkupString)message)</p>
     }
 
     <a class="btn btn-primary" @onclick="() => CreateRole()">Create Role</a>
@@ -94,7 +94,7 @@ else
         if (response.HttpResponse?.IsSuccessStatusCode == true)
         {
             isAccessGranted = true;
-            RoleList = response.Data;
+            RoleList = response.Data.OrderBy(x => x.Name).ToList();
         } else
         {
             isAccessGranted = false;
@@ -117,30 +117,22 @@ else
     private async Task OnCreateRoleDialogClose(CreateRoleDialog.ReturnAction returnData)
     {
         createRoleDialogIsOpen = false;
-        message = "Dialog Close;";
         if (!returnData.DidCancel)
         {
-            message += "Begin work;";
-            message += "Send message;";
+            var response = await Client.Auth.ApiHandler.PutApiDataAsync<string, Guid>("api/auth/createRole", returnData.RoleName, jsr, Http);
 
-            var response = await Client.Auth.ApiHandler.PostApiDataAsync<string, Guid>("api/auth/createRole", returnData.RoleName, jsr, Http);
-            message += "Response Recieved;";
-
-            if (response.HttpResponse?.IsSuccessStatusCode != true)
+            if (response.HttpResponse?.IsSuccessStatusCode != true || response.Data == Guid.Empty)
             {
-                message += $"Response Failure: {response?.HttpResponse?.StatusCode}";
-                message += $"Response Failure: {response?.ErrorData?.Exception?.ToString()}";
-                message += $"Response Failure: {response?.ErrorData?.Message}";
-
+                message += $"Could not add group.";
                 return;
             }
-            message += "Response succcess;";
 
             RoleList?.Add(new RoleModel()
                 {
                     Id = response.Data,
                     Name = returnData.RoleName
                 });
+            RoleList = RoleList?.OrderBy(x => x.Name).ToList();
         }
     }
 }

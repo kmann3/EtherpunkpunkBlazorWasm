@@ -5,8 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace EtherpunkBlazorWasm.Shared;
-public class RenameRole
+public class RoleData
 {
     public Guid RoleId { get; set; }
-    public string NewName { get; set; }
+    public string Name { get; set; }
 }

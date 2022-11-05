@@ -155,12 +155,12 @@ public class AuthController : ControllerBase
 	/// <param name="roleInfo">ID of role to change and new name to be given to role</param>
 	/// <returns>Returns true if success, false if failure. Failure will more likely mean roleId doesn't exist.</returns>
     [HttpPost, Authorize(Roles = "Admin"), Route("api/auth/renameRole")]
-    public async Task<bool> RenameRole([FromBody] RenameRole roleInfo)
+    public async Task<bool> RenameRole([FromBody] RoleData roleInfo)
 	{
 		try
 		{
 			var role = dbContext.AppRoles.Where(x => x.Id == roleInfo.RoleId).Single();
-			role.RoleName = roleInfo.NewName;
+			role.RoleName = roleInfo.Name;
 			await dbContext.SaveChangesAsync();
 
 			return true;
@@ -170,15 +170,16 @@ public class AuthController : ControllerBase
 		}
 	}
 
-	/// <summary>
-	/// Creates a new role and return the Guid of the new role.
-	/// </summary>
-	/// <param name="newRoleName">Name of the role to create.</param>
-	/// <returns>Returns the Guid of a new role. It should be all you need to add users quickly afterwards calling the API to get an updated list.</returns>
-    [HttpPost, Authorize(Roles = "Admin"), Route("api/auth/createRole")]
-    public async Task<Guid> CreateNewRole(string newRoleName)
+    /// <summary>
+    /// Creates a new role and return the Guid of the new role.
+    /// </summary>
+    /// <param name="roleName">Name of the role to create.</param>
+    /// <returns>Returns the Guid of a new role. It should be all you need to add users quickly afterwards calling the API to get an updated list.</returns>
+    //[HttpPost, Authorize(Roles = "Admin"), Route("api/auth/createRole")]
+    [HttpPut, Route("api/auth/createRole")]
+    public async Task<Guid> CreateNewRole([FromBody] string roleName)
 	{
-		AppRole role = new() { RoleName = newRoleName };
+		AppRole role = new() { RoleName = roleName };
 		dbContext.Add(role);
 		await dbContext.SaveChangesAsync();
 		return role.Id;

@@ -25,6 +25,9 @@ else
     {
         <p>Message: @message</p>
     }
+
+    <a class="btn btn-primary" @onclick="() => CreateRole()">Create Role</a>
+
     <table class="table table-striped">
       <thead>
         <tr>
@@ -41,14 +44,13 @@ else
                     @foreach(var user in role.UserList)
                     {
                         <a href="/admin/user/@user.Id">@user.Name</a>
-                        <a class="btn btn-info">Remove User From Role</a>
+                        <a class="btn btn-primary">Remove User From Role</a>
                         <br />
                     }
                 </td>
                     <td>
-                        <a class="btn btn-info">Add A User</a>
-                        <a class="btn btn-info">Rename Role</a>
-                        <a class="btn btn-danger" @onclick="() => DeleteRole(role.Id, role.Name)">Delete</a>
+                        <a class="btn btn-primary">Add A User</a>
+                        <a class="btn btn-primary">Rename Role</a>
                     </td>
             </tr>
         }
@@ -58,31 +60,22 @@ else
     <p>Role Count: @RoleList.Count</p>
 }
 
-@if (DeleteDialogIsOpen)
+@if (createRoleDialogIsOpen)
 {
-   <ConfirmDeleteDialog
-           Message="@deleteDialogMessage"
-           OnClose="@OnDeleteDialogClose">
-   </ConfirmDeleteDialog>
-}
-@if (RenameDialogIsOpen)
-{
-    <RenameRoleDialog
-        Message="@renameDialogMessage"
-        OnClose="@OnRenameDialogClose">
-    </RenameRoleDialog>
+    <CreateRoleDialog
+        Message="@createRoleDialogMessage"
+        OnClose="@OnCreateRoleDialogClose">
+    </CreateRoleDialog>
 }
 @code {
     private List<RoleModel>? RoleList { get; set; }
     private string? userData;
     private string? message;
+
     private bool? isAccessGranted = null;
 
-    private bool DeleteDialogIsOpen = false;
-    private string deleteDialogMessage = String.Empty;
-
-    private bool RenameDialogIsOpen = false;
-    private string renameDialogMessage = String.Empty;
+    private bool createRoleDialogIsOpen = false;
+    private string createRoleDialogMessage = String.Empty;
 
     /// <summary>
     /// Page load stuff.
@@ -96,12 +89,12 @@ else
 
         // Validate user auth to make sure they can be here
         // Get list roles and users
-        var response = await GetRolesApi();
+        var response = await Client.Auth.ApiHandler.GetApiDataListAsync<RoleModel>("/api/auth/roleList", jsr, Http);
 
-        if (response.isSuccess)
+        if (response.HttpResponse?.IsSuccessStatusCode == true)
         {
             isAccessGranted = true;
-            RoleList = response.roleList;
+            RoleList = response.Data;
         } else
         {
             isAccessGranted = false;
@@ -115,93 +108,39 @@ else
     // Delete a role
     // Create a new role
 
-    /// <summary>
-    /// 
-    /// </summary>
-    private async void AddUserToRole()
+    private void CreateRole()
     {
-        UserRole ur = new()
-        {
-            RoleId = Guid.NewGuid(),
-            UserId = Guid.NewGuid()
-        };
-
-        var response = await Client.Auth.ApiHandler.GetApiDataAsync<RoleModel>("api/auth/addUserToRole", jsr, Http);
+        createRoleDialogIsOpen = true;
+        createRoleDialogMessage = $"What will the role be called?";
     }
 
-    
-    /// <summary>
-    /// 
-    /// </summary>
-    private async void RemoveUserFromRole()
+    private async Task OnCreateRoleDialogClose(CreateRoleDialog.ReturnAction returnData)
     {
-        UserRole ur = new()
+        createRoleDialogIsOpen = false;
+        message = "Dialog Close;";
+        if (!returnData.DidCancel)
+        {
+            message += "Begin work;";
+            message += "Send message;";
+
+            var response = await Client.Auth.ApiHandler.PostApiDataAsync<string, Guid>("api/auth/createRole", returnData.RoleName, jsr, Http);
+            message += "Response Recieved;";
+
+            if (response.HttpResponse?.IsSuccessStatusCode != true)
             {
-                RoleId = Guid.NewGuid(),
-                UserId = Guid.NewGuid()
-            };
+                message += $"Response Failure: {response?.HttpResponse?.StatusCode}";
+                message += $"Response Failure: {response?.ErrorData?.Exception?.ToString()}";
+                message += $"Response Failure: {response?.ErrorData?.Message}";
 
-        var response = await Client.Auth.ApiHandler.GetApiDataAsync<RoleModel>("api/auth/removeUserFromRole", jsr, Http);
-    }
-
-    private async void CreateNewRole()
-    {
-        var response = await Client.Auth.ApiHandler.GetApiDataAsync<string>("api/auth/removeUserFromRole", jsr, Http);
-    }
-
-    private void DeleteRole(Guid roleId, string roleName)
-    {
-        DeleteDialogIsOpen = true;
-        deleteDialogMessage = $"Are you sure you want to delete role `{roleName}`?";
-    }
-
-    private async Task OnDeleteDialogClose(bool confirmDelete)
-    {
-        if(confirmDelete)
-        {
-            var response = await Client.Auth.ApiHandler.GetApiDataAsync<bool>("api/auth/deleteRole", jsr, Http);
-            // Refresh list
-            message = "TO BE IMPLEMENTED!";
-
-        }
-
-        DeleteDialogIsOpen = false;
-    }
-
-    private async Task OnRenameDialogClose(RenameRoleDialog.ReturnAction returnData)
-    {
-        if(!returnData.DidCancel)
-        {
-
-            var response = await Client.Auth.ApiHandler.PostApiDataAsync<RenameRole, bool>("api/auth/renameRole", returnData, jsr, Http);
-            //LoginResult result = await msg.Content.ReadFromJsonAsync<LoginResult>() ?? new LoginResult() { Success = false };
-            // HttpResponse can be null, false, or true. Anything other than true means failure of some kind or another.
-            
-            if(response.HttpResponse?.IsSuccessStatusCode != true)
-            {
                 return;
             }
+            message += "Response succcess;";
 
-            var roleToUpdate = RoleList!.Where(x => x.Id == returnData.RoleId).Single();
-            roleToUpdate.Name = returnData.NewRoleName;
+            RoleList.Add(new RoleModel()
+                {
+                    Id = response.Data,
+                    Name = returnData.RoleName
+                });
         }
-    }
-
-    /// <summary>
-    /// Get's a list of roles and a list of users within those roles.
-    /// </summary>
-    /// <returns>Returns (bool, List<RoleModel>?) where bool is whether the request was successful and if it was gives the data.</returns>
-    private async Task<(bool isSuccess, List<RoleModel>? roleList)> GetRolesApi()
-    {
-        var response = await Client.Auth.ApiHandler.GetApiDataAsync<RoleModel>("/api/auth/roleList", jsr, Http);
-        if(response.HttpResponse?.IsSuccessStatusCode == true)
-        {
-            return (true,response.Data);
-        } else
-        {
-            message  = $"HttpResponse.StatusCode: {response.HttpResponse?.StatusCode}<hr />";
-        }
-
-        return (false, null);
     }
 }

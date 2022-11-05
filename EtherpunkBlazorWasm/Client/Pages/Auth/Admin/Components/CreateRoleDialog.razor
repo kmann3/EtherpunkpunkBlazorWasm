@@ -2,17 +2,17 @@
    <div class="modal-dialog">
       <div class="modal-content">
          <div class="modal-header">
-            <h4 class="modal-title">Rename Role</h4>
+            <h4 class="modal-title">Create Role</h4>
             <button type="button" class="close"
                @onclick="@Cancel">&times;</button>
          </div>
          <div class="modal-body">
             <p>@Message</p>
-            <InputText id="name" @bind-Value="returnData.NewRoleName" />
+            <InputText id="name" @bind-Value="returnData.RoleName" />
          </div>
          <div class="modal-footer">
-            <button type="button" class="btn btn-primary" @onclick=@Ok>Rename</button>
-            <button type="button" class="btn btn-primary" @onclick="@Cancel">Cancel</button>
+            <button type="button" class="btn btn-primary" @onclick=@Ok>Create</button>
+                <button type="button" class="btn btn-primary" @onclick="@Cancel">Cancel</button>
          </div>
       </div>
    </div>
@@ -39,17 +39,6 @@
     {
         public bool DidCancel { get; set; }
         public Guid RoleId { get; set; } = Guid.Empty;
-        public string NewRoleName { get; set; } = String.Empty;
-
-        public static implicit operator EtherpunkBlazorWasm.Shared.RoleData(ReturnAction a)
-        {
-            EtherpunkBlazorWasm.Shared.RoleData returnData = new()
-                {
-                    Name = a.NewRoleName,
-                    RoleId = a.RoleId
-                };
-
-            return returnData;
-        }
+        public string RoleName { get; set; } = String.Empty;
     }
 }

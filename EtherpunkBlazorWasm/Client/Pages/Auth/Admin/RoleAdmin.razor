@@ -74,8 +74,6 @@ else
 
     private bool? isAccessGranted = null;
 
-    private bool createRoleDialogIsOpen = false;
-    private string createRoleDialogMessage = String.Empty;
 
     /// <summary>
     /// Page load stuff.
@@ -106,7 +104,9 @@ else
     // Add a user to a role
     // Rename a role
     // Delete a role
-    // Create a new role
+    #region Create Role
+    private bool createRoleDialogIsOpen = false;
+    private string createRoleDialogMessage = String.Empty;
 
     private void CreateRole()
     {
@@ -119,7 +119,7 @@ else
         createRoleDialogIsOpen = false;
         if (!returnData.DidCancel)
         {
-            var response = await Client.Auth.ApiHandler.PutApiDataAsync<string, Guid>("api/auth/createRole", returnData.RoleName, jsr, Http);
+            var response = await Client.Auth.ApiHandler.PostApiDataAsync<string, Guid>("api/auth/createRole", returnData.RoleName, jsr, Http);
 
             if (response.HttpResponse?.IsSuccessStatusCode != true || response.Data == Guid.Empty)
             {
@@ -135,4 +135,11 @@ else
             RoleList = RoleList?.OrderBy(x => x.Name).ToList();
         }
     }
+    #endregion Create Role
+
+    #region Delete Role
+    private bool deleteRoleDialogIsOpen = false;
+    private string deleteRoleDialogMessage = String.Empty;
+
+    #endregion Delete Role
 }

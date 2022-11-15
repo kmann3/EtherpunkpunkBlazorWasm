@@ -1,4 +1,7 @@
-﻿<div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
+﻿@inject HttpClient Http
+@inject IJSRuntime jsr
+
+<div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
    <div class="modal-dialog">
       <div class="modal-content">
          <div class="modal-header">
@@ -7,7 +10,7 @@
                @onclick="@Cancel">&times;</button>
          </div>
          <div class="modal-body">
-            <p>@Message</p>
+            <p>Name of new role</p>
             <InputText id="name" @bind-Value="returnData.RoleName" @onkeydown="@KeyAction" />
          </div>
          <div class="modal-footer">
@@ -19,20 +22,30 @@
 </div>
 
 @code {
-    [Parameter] public string Message { get; set; } = String.Empty;
     [Parameter] public EventCallback<ReturnAction> OnClose { get; set; }
 
     private ReturnAction returnData = new();
 
-    private Task Cancel()
+    private async Task Cancel()
     {
         returnData.DidCancel = true;
-        return OnClose.InvokeAsync(returnData);
+        await OnClose.InvokeAsync(returnData);
     }
 
-    private Task Ok()
+    private async Task Ok()
     {
-        return OnClose.InvokeAsync(returnData);
+        var response = await Client.Auth.ApiHandler.PostApiDataAsync<string, Guid>("api/auth/createRole", returnData.RoleName, jsr, Http);
+
+        if (response.HttpResponse?.IsSuccessStatusCode != true || response.Data == Guid.Empty)
+        {
+            returnData.WasSuccess = false;
+        } else
+        {
+            returnData.RoleId = response.Data;
+            returnData.WasSuccess = true;
+        }
+
+        await OnClose.InvokeAsync(returnData);
     }
 
     public void KeyAction(KeyboardEventArgs e)
@@ -49,8 +62,9 @@
 
     public class ReturnAction
     {
-        public bool DidCancel { get; set; }
+        public bool DidCancel { get; set; } = false;
         public Guid RoleId { get; set; } = Guid.Empty;
         public string RoleName { get; set; } = String.Empty;
+        public bool WasSuccess { get; set; } = false;
     }
 }

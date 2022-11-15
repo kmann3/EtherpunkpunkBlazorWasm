@@ -114,12 +114,10 @@ else
     // Delete a role
     #region Create Role
     private bool createRoleDialogIsOpen = false;
-    private string createRoleDialogMessage = String.Empty;
 
     private void CreateRole()
     {
         createRoleDialogIsOpen = true;
-        createRoleDialogMessage = $"What will the role be called?";
     }
 
     private async Task OnCreateRoleDialogClose(CreateRoleDialog.ReturnAction returnData)
@@ -127,20 +125,15 @@ else
         createRoleDialogIsOpen = false;
         if (!returnData.DidCancel)
         {
-            var response = await Client.Auth.ApiHandler.PostApiDataAsync<string, Guid>("api/auth/createRole", returnData.RoleName, jsr, Http);
-
-            if (response.HttpResponse?.IsSuccessStatusCode != true || response.Data == Guid.Empty)
-            {
-                message += $"Could not add group.";
-                return;
-            }
-
             RoleList?.Add(new RoleModel()
                 {
-                    Id = response.Data,
+                    Id = returnData.RoleId,
                     Name = returnData.RoleName
                 });
             RoleList = RoleList?.OrderBy(x => x.Name).ToList();
+        } else
+        {
+            message = "Failed to create new role";
         }
     }
     #endregion Create Role

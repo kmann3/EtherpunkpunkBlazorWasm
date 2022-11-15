@@ -191,4 +191,19 @@ public class AuthController : ControllerBase
 			return Guid.Empty;
 		}
 	}
+
+	[HttpPut, Route("api/auth/renameRole")]
+	public async Task<bool> RenameRole([FromBody] RoleModel roleInfo)
+	{
+		try
+		{
+			var role = dbContext.AppRoles.Where(x => x.Id == roleInfo.Id).Single();
+			role.RoleName = roleInfo.Name;
+			await dbContext.SaveChangesAsync();
+			return true;
+		} catch
+		{
+			return false;
+		}
+	}
 }

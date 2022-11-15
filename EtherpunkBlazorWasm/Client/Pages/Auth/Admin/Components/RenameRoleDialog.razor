@@ -1,5 +1,9 @@
-﻿<div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
-   <div class="modal-dialog">
+﻿@using EtherpunkBlazorWasm.Shared
+@inject HttpClient Http
+@inject IJSRuntime jsr
+
+<div class="modal fade show" id="myModal" style="display:block; background-color: rgba(10,10,10,.8);" aria-modal="true" role="dialog">
+    <div class="modal-dialog">
       <div class="modal-content">
          <div class="modal-header">
             <h4 class="modal-title">Rename Role</h4>
@@ -7,8 +11,8 @@
                @onclick="@Cancel">&times;</button>
          </div>
          <div class="modal-body">
-            <p>@Message</p>
-            <InputText id="name" @bind-Value="returnData.NewRoleName" />
+            <p>Rename role '@Role?.Name' to what?</p>
+            <InputText id="name" @bind-Value="newName" />
          </div>
          <div class="modal-footer">
             <button type="button" class="btn btn-primary" @onclick=@Ok>Rename</button>
@@ -19,37 +23,39 @@
 </div>
 
 @code {
-    [Parameter] public string Message { get; set; } = String.Empty;
+    [Parameter] public RoleModel? Role { get; set; }
     [Parameter] public EventCallback<ReturnAction> OnClose { get; set; }
+
+    private string newName = String.Empty;
 
     private ReturnAction returnData = new();
 
-    private Task Cancel()
+    private async Task Cancel()
     {
         returnData.DidCancel = true;
-        return OnClose.InvokeAsync(returnData);
+        await OnClose.InvokeAsync(returnData);
     }
 
-    private Task Ok()
+    private async Task Ok()
     {
-        return OnClose.InvokeAsync(returnData);
+        returnData.NewRoleInfo = Role!;
+        returnData.NewRoleInfo.Name = newName;
+
+        var response = await Client.Auth.ApiHandler.PutApiDataAsync<RoleModel, bool>("api/auth/renameRole", returnData.NewRoleInfo, jsr, Http);
+        if (response.HttpResponse?.IsSuccessStatusCode != true || response.Data == false)
+        {
+            returnData.WasSuccess = false;
+            await OnClose.InvokeAsync(returnData);
+        }
+
+        returnData.WasSuccess = true;
+        await OnClose.InvokeAsync(returnData);
     }
 
     public class ReturnAction
     {
-        public bool DidCancel { get; set; }
-        public Guid RoleId { get; set; } = Guid.Empty;
-        public string NewRoleName { get; set; } = String.Empty;
-
-        public static implicit operator EtherpunkBlazorWasm.Shared.RoleData(ReturnAction a)
-        {
-            EtherpunkBlazorWasm.Shared.RoleData returnData = new()
-                {
-                    Name = a.NewRoleName,
-                    RoleId = a.RoleId
-                };
-
-            return returnData;
-        }
+        public bool DidCancel { get; set; } = false;
+        public bool WasSuccess { get; set; } = false;
+        public RoleModel NewRoleInfo { get; set; }
     }
 }

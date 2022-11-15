@@ -50,7 +50,7 @@ else
                 </td>
                     <td>
                         <a class="btn btn-primary">Add A User</a>
-                        <a class="btn btn-primary">Rename Role</a>
+                        <a class="btn btn-primary" @onclick="() => RenameRole(role)">Rename Role</a>
                     </td>
             </tr>
         }
@@ -58,15 +58,23 @@ else
     </table>
 
     <p>Role Count: @RoleList.Count</p>
+
+    @if (createRoleDialogIsOpen)
+    {
+        <CreateRoleDialog Message="@createRoleDialogMessage"
+                          OnClose="@OnCreateRoleDialogClose">
+        </CreateRoleDialog>
+    }
+
+    @if (renameRoleDialogIsOpen)
+    {
+        <RenameRoleDialog Role="@renameRoleData"
+                          OnClose="@OnRenameRoleDialogClose">
+        </RenameRoleDialog>
+    }
 }
 
-@if (createRoleDialogIsOpen)
-{
-    <CreateRoleDialog
-        Message="@createRoleDialogMessage"
-        OnClose="@OnCreateRoleDialogClose">
-    </CreateRoleDialog>
-}
+
 @code {
     private List<RoleModel>? RoleList { get; set; }
     private string? userData;
@@ -137,9 +145,29 @@ else
     }
     #endregion Create Role
 
-    #region Delete Role
-    private bool deleteRoleDialogIsOpen = false;
-    private string deleteRoleDialogMessage = String.Empty;
+    #region Rename Role
+    private bool renameRoleDialogIsOpen = false;
+    private RoleModel? renameRoleData = null;
 
-    #endregion Delete Role
+    private void RenameRole(RoleModel role)
+    {
+        renameRoleDialogIsOpen = true;
+        renameRoleData = role;
+    }
+
+    private async Task OnRenameRoleDialogClose(RenameRoleDialog.ReturnAction returnData)
+    {
+        renameRoleDialogIsOpen = false;
+        if(!returnData.DidCancel)
+        {
+            if (returnData.WasSuccess)
+            {
+                RoleList.Find(x => x.Id == returnData.NewRoleInfo.Id).Name = returnData.NewRoleInfo.Name;
+            } else
+            {
+                message += "Error renaming role!";
+            }
+        }
+    }
+    #endregion Rename Role
 }

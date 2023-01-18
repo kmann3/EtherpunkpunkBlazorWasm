@@ -1,4 +1,4 @@
-﻿namespace EtherpunkBlazorWasm.Shared;
+﻿namespace EtherpunkBlazorWasm.Server;
 public class AppSettings
 {
     public const string ValidAudience = "EpunkAud";

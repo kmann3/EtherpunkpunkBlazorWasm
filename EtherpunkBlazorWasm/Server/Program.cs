@@ -1,6 +1,6 @@
+using EtherpunkBlazorWasm.Server;
 using EtherpunkBlazorWasm.Server.Auth;
 using EtherpunkBlazorWasm.Server.Data;
-using EtherpunkBlazorWasm.Shared;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
